@@ -1,0 +1,149 @@
+
+# Install Docker:
+# https://docs.docker.com/engine/install/ubuntu/
+# (Install using the repository (easy) method.)
+
+# nice to have, make sure you can type docker without sudo everytime.
+# instructions in docker installation post-installation.
+
+
+# Get the postgres image from docker hub.
+$ docker postgres pull
+
+# docker run:
+$ docker run -d \
+-p 5432:5432 \
+-e POSTGRES_PASSWORD=bengan \
+--name dw-postgres \
+postgres
+
+# Docker LOGS:
+$ docker logs <container id>
+
+# Install postgres locally on host to get the CLI tool.
+# I used apt-get to get postgres.
+# note that this will cause a WARNING because the default postgres in docker
+# and in apt are not the same versions. Use tags and manual download to 
+# sync these version.
+
+#connect to server from psql CLI:
+$ psql -h localhost -p 5432 -U postgres -W ; -W avaoid extra connection attempts.
+
+
+# Docker compose
+# https://www.youtube.com/watch?v=3c-iBn73dDE [1:32:05]
+
+# Validate yaml files with yamllint (can get via apt)
+# https://github.com/adrienverge/yamllint
+
+#sudo apt install python3
+$ alias python=python3
+$ sudo apt install python3-pip
+
+# start container from docker compose.
+$ docker -f <name of compose yaml file> up -d
+$ docker -f <compose file> down
+
+# docker compose adds docker_1 to the name of the conatiner.
+# docker compose creates a network on default for all images from a compose file.
+
+
+psql go; or \g to execute command.
+
+psql \l ; list all databases on postregs server instance.
+psql \c : connect to another DB.
+psql CREATE DATABASE stage;
+psql stage \c ; connect to database.
+
+#interactive mode. - on running container.
+$ docker exec -ti <container name> /bin/bash ; (sh)
+$ exit ; exit container shell
+
+#persisting the data - we need to attach a volume.
+volumes:
+<name of volume>:<path in container>
+
+# default data path postgres:
+# var/lib/postgresql/data
+
+# path on host to volume:
+# windows: C:\ProgramData\docker\volumes
+# linux: /var/lib/docker/volumes
+
+
+#list owner of databases in postgres.
+SELECT d.datname as "Name",
+pg_catalog.pg_get_userbyid(d.datdba) as "Owner"
+FROM pg_catalog.pg_database d
+WHERE d.datname IN ('postgres', 'stage')
+ORDER BY 1;
+
+Docker network allows applications inside it to communicate with just the container name.
+
+export POSTGRES_PASSWORD=<secret>
+unset POSTGRES_PASSWORD
+echo $POSTGRES_PASSWORD
+
+
+# ##### #####
+# PGAdmin
+# ##### #####
+# https://www.pgadmin.org/
+# https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html
+# https://hub.docker.com/r/dpage/pgadmin4/
+# default port 80.
+# work dir: /var/lib/pgadmin
+
+Warning: pgAdmin runs as the pgadmin user (UID: 5050) in the pgadmin group (GID: 5050) in the container. You must ensure that all files are readable, and where necessary (e.g. the working/session directory) writeable for this user on the host machine. For example:
+
+sudo chown -R 5050:5050 <host_directory>
+
+$ sudo chown -R 5050:5050 /var/lib/docker/volumes/docker_project-z-data
+
+
+# Change host file on host
+$ sudo nano /etc/hosts
+# private ranges ipv4
+    10.0.0.0/8 IP addresses: 10.0.0.0 – 10.255.255.255
+    172.16.0.0/12 IP addresses: 172.16.0.0 – 172.31.255.255
+    192.168.0.0/16 IP addresses: 192.168.0.0 – 192.168.255.255
+$ nslookup
+
+TODO: change host file localhost project-z/pgadmin
+change port binding pgadmin.
+
+# Nginx
+# https://www.docker.com/blog/how-to-use-the-official-nginx-docker-image/
+# https://www.digitalocean.com/community/tutorials/how-to-run-nginx-in-a-docker-container-on-ubuntu-14-04
+
+
+TODO: depends on.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO: pgadmin.
+
+
+
+
+
+
+
+
+
+
+
