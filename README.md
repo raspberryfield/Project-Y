@@ -5,3 +5,14 @@ Project-Z is just a repository of code that combines different open source initi
 There are a lot of great open source projects out there, but it might be hard for a novice BI-developer to understand them or even try them out. The goal of this project is to provide a sample of a fully functional BI-platform, using ONLY open source resources!
 
 All learning materials are or will be included in the wiki.
+
+---
+
+The project has only been tested on:
+
+Description: Ubuntu 20.04.2 LTS  
+Release:	20.04  
+Codename:	focal  
+
+Find version with:  
+> $ lsb_release -a
