@@ -7,6 +7,8 @@
 # instructions in docker installation post-installation.
 
 
+# test
+
 # Get the postgres image from docker hub.
 $ docker postgres pull
 
