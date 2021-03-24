@@ -76,13 +76,15 @@ env_files=(postgres pgadmin)
 ## loop files to create
 for file in ${env_files[@]}
  do
+ # Added writeable check here!
+ # move filename here
   if [ $overwrite = "true" ]
    then
     eval $file
     continue
    else
     filename=$file$file_suffix
-    if [ -e $filename ] # check if file already exists
+    if [ -f $filename ] # check if file already exists
      then
       echo "[INFO] - File '$filename' already exists."
       echo "Do you want to overwrite it?"
@@ -106,7 +108,7 @@ done
 exit 1 # also good to use when troubleshooting.
 
 # TODO:
-# 4. Add user choice for overwrite in loop.
+# 4. create writable check, warning continue.
 # 5. Append values to files.
 # 6. CLEAN CODE!
 
