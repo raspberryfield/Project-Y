@@ -13,6 +13,7 @@
 # Variables.
 $user
 $password
+overwrite=false
 
 # READ ARGUMENTS
 ## see if user wants help / no arguments passed.
@@ -25,11 +26,11 @@ elif [[ $1 == "--help" ]] || [[ $1 == "-h" ]]
  then
   echo "[HELP]"
   # echo -e enables to use \n and other special commands.
-  echo "Usage: $0 -u <my@email.com> -p <my_password>"
+  echo "Usage: $0 -u <my@email.com> -p <my_password> [-o]"
   echo "Description: Creates docker environment files locally with user and password from this script."
   echo "-u, --user: Specify username (a valid email address)."
   echo "-p, --password: Your secret password."
-  echo "-o, --overwrite: overwrites any already existing files."
+  echo "-o, --overwrite: overwrites any already existing files. [optional]"
   exit 1
 fi #END help section.
 
@@ -42,6 +43,9 @@ for arg in $@
   elif [ $arg == "--password" ] || [ $arg == "-p" ]
    then
     password=$2
+  elif [ $arg == "--overwrite" ] || [ $arg == "-o" ]
+   then
+   overwrite=true
   fi
  shift 1 # shift index argument $2 >> $3. read +1 from arguments list compared with args.
 done
@@ -54,22 +58,55 @@ if [ -z $user ] || [ -z $password ]
   exit 1
 fi
 
-# Create files
-#
-postgres="postgres-variables.env"
-pgadmin="pgadmin-variables.env"
-#
-files=($postgres $pgadmin)
-for file in ${files[@]}
+
+# CREATE ENVIRONMENT FILES
+
+file_suffix="-variables.env"
+
+## if new env file, add function here, also add function name to env_files array.
+function postgres {
+ echo "call from postgres"
+}
+function pgadmin {
+ echo "call from pgadmin"
+}
+## add new env file to this array.
+env_files=(postgres pgadmin)
+
+## loop files to create
+for file in ${env_files[@]}
  do
-  echo $file
- if [ -e $file ]
-  then
-   echo "File '$file' already exists."
-   echo "Do you want to overwrite it?"
-   echo -e "[y/n]: \c" # -e allows special commands. \c cursor stays on same line.
-   read answer
-   echo $answer
- fi
+  if [ $overwrite = "true" ]
+   then
+    eval $file
+    continue
+   else
+    filename=$file$file_suffix
+    if [ -e $filename ] # check if file already exists
+     then
+      echo "[INFO] - File '$filename' already exists."
+      echo "Do you want to overwrite it?"
+      echo -e "[y/n]: \c" # -e allows special commands. \c cursor stays on same line.
+      read answer
+      if [ $answer = "y" ]
+       then
+        eval $file
+      elif [ $answer = "n" ]
+       then
+        echo "[INFO] - skipped '$filename'."
+      else
+        echo "[WARNING] - input not recognized. No action taken for '$filename'."
+      fi
+    else # file does not already exists
+     eval $file
+    fi
+  fi
 done
+
+exit 1 # also good to use when troubleshooting.
+
+# TODO:
+# 4. Add user choice for overwrite in loop.
+# 5. Append values to files.
+# 6. CLEAN CODE!
 
