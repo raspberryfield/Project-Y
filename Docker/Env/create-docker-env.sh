@@ -17,7 +17,7 @@ overwrite=false
 
 # READ ARGUMENTS
 ## see if user wants help / no arguments passed.
-if [ $# -eq 0 ] 
+if [ $# -eq 0 ]
  then # print help message to user.
   echo "[ERROR] - no arguments passed."
   echo "Help: $0 --help"
@@ -64,11 +64,25 @@ fi
 file_suffix="-variables.env"
 
 ## if new env file, add function here, also add function name to env_files array.
+## name the function as you want the first part of the file to be named.
+function dummy {
+ # -n no trailing new line feed.
+ echo -n "" > ${FUNCNAME[0]}$file_suffix # > create if not exists else overwrite, >> append.
+ echo "<Your content goes here>" >> ${FUNCNAME[0]}$file_suffix
+ echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
+}
 function postgres {
- echo "call from postgres"
+ echo -n "" > ${FUNCNAME[0]}$file_suffix
+ echo "POSTGRES_PASSWORD=$password" >> ${FUNCNAME[0]}$file_suffix
+ echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
 }
 function pgadmin {
- echo "call from pgadmin"
+ echo -n "" > ${FUNCNAME[0]}$file_suffix
+ echo "PGADMIN_DEFAULT_EMAIL=$user" >> ${FUNCNAME[0]}$file_suffix
+ echo "PGADMIN_DEFAULT_PASSWORD=$password" >> ${FUNCNAME[0]}$file_suffix
+ echo "PGADMIN_LISTEN_ADDRESS=0.0.0.0" >> ${FUNCNAME[0]}$file_suffix
+ echo "PGADMIN_LISTEN_PORT=80" >> ${FUNCNAME[0]}$file_suffix
+ echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
 }
 ## add new env file to this array.
 env_files=(postgres pgadmin)
@@ -76,14 +90,18 @@ env_files=(postgres pgadmin)
 ## loop files to create
 for file in ${env_files[@]}
  do
- # Added writeable check here!
- # move filename here
+  filename=$file$file_suffix
+  if [ -e $filename ] && [ ! -w $filename ] # -e exists, -w writable
+   then
+    echo "[WARNING] - file '$filename' is not writable."
+    echo "Change permission with $ chmod +w <filename> and run script again."
+    continue
+  fi
   if [ $overwrite = "true" ]
    then
     eval $file
     continue
    else
-    filename=$file$file_suffix
     if [ -f $filename ] # check if file already exists
      then
       echo "[INFO] - File '$filename' already exists."
@@ -106,9 +124,4 @@ for file in ${env_files[@]}
 done
 
 exit 1 # also good to use when troubleshooting.
-
-# TODO:
-# 4. create writable check, warning continue.
-# 5. Append values to files.
-# 6. CLEAN CODE!
 
