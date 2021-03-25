@@ -6,7 +6,7 @@ services:
   ports:
    - 5432:5432
   env_file:
-   - postgres-variables.env
+   - Env/postgres-variables.env
   volumes:
    - project-z-pgdata:/var/lib/postgresql/data
  z-pgadmin:
@@ -14,7 +14,7 @@ services:
   ports:
    - 8003:80
   env_file:
-   - pgadmin-variables.env
+   - Env/pgadmin-variables.env
   volumes:
    - project-z-pgadmin:/var/lib/pgadmin
  z-nginx:
