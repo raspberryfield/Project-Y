@@ -8,14 +8,17 @@ To make it easier to create all different files that are needed, there is a scri
 
 Example:
 
-    `$ ./create-docker-env.sh --help`
+    $ ./create-docker-env.sh --help
 *Prints info about the script.*
+  
 
-    `$ ./create-docker-env.sh --user <valid@email.com> --password <my_secret>`
-How to create the files.
+    $ ./create-docker-env.sh --user <valid@email.com> --password <my_secret>
+*How to create the files.*
+  
 
-    `$ ./create-docker-env.sh --user <valid@email.com> --password <my_secret> --overwrite`
-Use the [optional] overwrite flag to overwrite already existing files.
+    $ ./create-docker-env.sh --user <valid@email.com> --password <my_secret> --overwrite
+*Use the [optional] overwrite flag to overwrite already existing files.*
+  
 
 > NOTE! You might need to give the script execution permission. You can do it as this:
 >    `$ chmod +x  create-docker-env.sh`
