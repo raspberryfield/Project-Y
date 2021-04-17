@@ -1,8 +1,14 @@
 ---
 version: "3"
 services:
+ z-ubuntu:
+  image: ubuntu
+  networks:
+   - z-net
  z-postgres:
   image: postgres
+  networks:
+   - z-net
   ports:
    - 5432:5432
   env_file:
@@ -11,6 +17,8 @@ services:
    - project-z-pgdata:/var/lib/postgresql/data
  z-pgadmin:
   image: dpage/pgadmin4
+  networks:
+   - z-net
   ports:
    - 8003:80
   env_file:
@@ -19,8 +27,13 @@ services:
    - project-z-pgadmin:/var/lib/pgadmin
  z-nginx:
   image: z-nginx
+  networks:
+   - z-net
   ports:
    - 80:80
+networks:
+ z-net:
+  driver: bridge
 volumes:
  project-z-pgdata:
   driver: local
