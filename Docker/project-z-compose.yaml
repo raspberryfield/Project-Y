@@ -2,11 +2,11 @@
 version: "3"
 services:
  z-ubuntu:
-  image: ubuntu
+  image: z-ubuntu
   networks:
    - z-net
  z-postgres:
-  image: postgres
+  image: z-postgres
   networks:
    - z-net
   ports:
