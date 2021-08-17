@@ -29,6 +29,11 @@ See if host is available on network:
 Get IP address from dns name:  
     `# nslookup [hostname]` e.g. `# nslookup z-postgres` dns server will respond with answer resolve dns name to ip addres.  
 
+### Psql - cmd tool for postgres
+Get version:  
+    `# psql --version`  
+Connect to the postgres instance in docker container (z-net):  
+    `# psql -h z-postgres -U postgres`  
 
 
 
