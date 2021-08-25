@@ -3,12 +3,12 @@ Webserver and reverse proxy.
 
 ## Useful commands
 Build the z-postgres image:  
-    $ docker build -t z-nginx .  
+    `$ docker build -t z-nginx .`  
 
 Interactive mode with container:  
-    $ docker exec -it <container id> /bin/bash
+    `$ docker exec -it <container id> /bin/bash`  
 exit interactive mode:  
-    # exit
+    `# exit`  
 
 ## Test Nginx in Docker
 The simpliest way to run the official nginx image:  

@@ -4,28 +4,28 @@ According to the official documentation, every script moved to **/docker-entrypo
 ## Useful commands
 
 Build the z-postgres image:  
-    $ docker build -t z-postgres .  
+    `$ docker build -t z-postgres .`  
 
 Run the image (stand alone):  
-    $ docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env z-postgres  
+    $` docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env z-postgres`  
 
 Connect to the image (stand alone):  
-    $ psql -h 127.0.0.1 -p 5432 -U postgres  
+    `$ psql -h 127.0.0.1 -p 5432 -U postgres`  
 
 List databases:
-    # \l  
+    `# \l`  
     
 Connect to db:  
-    # \c <name of db>  
+    `# \c <name of db>`  
     
 List tables in current db:  
-    # \dt  
+    `# \dt`  
     
 Example of SELECT:  
-    # SELECT * FROM names;  
+    `# SELECT * FROM names;`  
 
 Exit postgres shell:  
-    # exit  
+    `# exit`  
 
 
 
