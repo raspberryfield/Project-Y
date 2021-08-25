@@ -12,7 +12,7 @@ Run the image (stand alone):
 Connect to the image (stand alone):  
     `$ psql -h 127.0.0.1 -p 5432 -U postgres`  
 
-List databases:
+List databases:  
     `# \l`  
     
 Connect to db:  
