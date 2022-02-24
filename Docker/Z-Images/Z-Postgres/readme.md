@@ -16,10 +16,10 @@ Run the image (stand alone, no compose command involved):
 > Tip! add **-d** to make the image run in container in detached mode in your terminal.  
 
 Standard way of connecting to the official image:  
-`$ docker run -d \
---name my-postgres \
--p 5432:5432 \
--e POSTGRES_PASSWORD=<my_password> \
+`$ docker run -d \  
+--name my-postgres \  
+-p 5432:5432 \  
+-e POSTGRES_PASSWORD=<my_password> \  
 postgres`  
 
 Make sure that the container is running:  
