@@ -15,11 +15,19 @@ Run the image (stand alone, no compose command involved):
     `$ docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env z-postgres`  
 > Tip! add **-d** to make the image run in container in detached mode in your terminal.  
 
+Standard way of connecting to the official image:  
+`$ docker run -d \
+--name my-postgres \
+-p 5432:5432 \
+-e POSTGRES_PASSWORD=<my_password> \
+postgres`  
+
 Make sure that the container is running:  
     `$ docker container ls`  
 
 Connect to the image (stand alone, use client installed on your host):  
     `$ psql -h 127.0.0.1 -p 5432 -U postgres`  
+Per default, postgres always creates a default users named *postgres*.  
 Read more about the **psql** client in the wiki, section *IDEs and Tools*.  
 
 List databases:  
