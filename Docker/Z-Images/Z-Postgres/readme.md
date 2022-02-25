@@ -15,9 +15,12 @@ Run the image (stand alone, no compose command involved):
     `$ docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env z-postgres`  
 > Tip! add **-d** to make the image run in container in detached mode in your terminal.  
 
-Standard way of connecting to the official image:  
+Standard way of running the official image:  
 `$ docker run -d --name my-postgres -p 5432:5432 -e POSTGRES_PASSWORD=<my_password> postgres`  
 > Tip! Use \ and enter to create a new line in terminal.  
+
+Connect interactively directly to the image:  
+`$ docker exec -it z-postgres /bin/sh`
 
 Make sure that the container is running:  
     `$ docker container ls`  
