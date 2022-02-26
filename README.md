@@ -15,4 +15,10 @@ Release:	20.04
 Codename:	focal  
 
 Find version with:  
-> $ lsb_release -a
+    `$ lsb_release -a`  
+
+---
+
+## Folder Structure  
+**Docker** - Everything related to docker is stored here. Images, commands, help scripts etc.  
+
