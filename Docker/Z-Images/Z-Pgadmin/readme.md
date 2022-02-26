@@ -16,7 +16,15 @@ After you run the docker compose, so the volumes are created, run this:
 `$ sudo chown -R 5050:5050 /var/lib/docker/volumes/docker_project-z-data`  
 
 ## Connect to PostgreSQL
-If you have followed the  
+If you have followed the installation guide and run the docker compose file you can open pgadmin in your browser with `pgadmin.local`, use the credentials you stated during the installation process.  
+
+Now, right click on servers and choose *create > server*. Fill in this to connect to the postgres image:  
+- General  
+    - Name: **z-postgres** (name it whatever you like)  
+- Connection  
+    - Host name/address: **z-postgres**  
+    - Username: postgres  
+    - Password: (the same password as you used during the installation)  
 
 ## Useful commands  
 (If running stand-alone, make sure that you don't have a conflict on localhost, e.g. another container is also accepting requests as localhost.)  

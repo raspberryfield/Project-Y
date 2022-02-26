@@ -2,7 +2,7 @@
 
 ## Docker
 Build the image. (Must run the build command in this folder path `../Docker/Z-Images/Z-Ubuntu`):  
-    `$ docker build -t z-ubuntu .`  
+    `$ docker build -t z-ubuntu . `  
 
 Get the conatiner ID of your z-ubuntu image by listing all conatiners (after you run docker compose):  
     `$ docker container ls --all`  
