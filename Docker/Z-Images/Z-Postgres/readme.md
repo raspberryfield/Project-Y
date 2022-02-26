@@ -1,5 +1,5 @@
 ## Info about Postgres Docker Image
-According to the official documentation, every script moved to **/docker-entrypoint-initdb.d/** in the docker image will be run on startup [https://hub.docker.com/_/postgres](https://hub.docker.com/_/postgres). See how this is done in the Dockerfile.  
+According to the official documentation, every script ending with .sh and .sql moved to **/docker-entrypoint-initdb.d/** in the docker image will be run on startup [https://hub.docker.com/_/postgres](https://hub.docker.com/_/postgres). See how this is done in the Dockerfile.  
 
 ## Useful commands
 > Note! Run the *create-docker-env.sh* script in the **Env** folder before trying these commands.  
