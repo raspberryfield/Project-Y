@@ -8,7 +8,7 @@ The difference between *docker* commands and *docker-compose* commands are that 
 
 Docker-compose is often used with one or multiple *docker-compose files*, it's like a config file for docker-compose. The main docker/compose file used is the **project-z-compose.yaml**.  
 
-Run Docker Compose with File
+Run Docker Compose with File  
     `$ docker-compose -f project-z-compose.yaml up -d`  
 **-d** - Run in detached mode in terminal.
 
