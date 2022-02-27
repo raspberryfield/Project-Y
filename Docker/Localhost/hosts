@@ -1,0 +1,4 @@
+# Add these lines to your local hosts file **/etc/hosts**
+# The following lines are for project-Z
+127.0.0.2	static.local staticwebpageexample.local
+127.0.0.3	pgadmin pgadmin.local
