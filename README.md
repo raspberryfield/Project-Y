@@ -21,4 +21,6 @@ Find version with:
 
 ## Folder Structure  
 **Docker** - Everything related to docker is stored here. Images, commands, help scripts etc.  
+**Localhost** - Changes you have to make to your desktop. E.g. add entires in the local hosts file.  
+
 
