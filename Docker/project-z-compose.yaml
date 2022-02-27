@@ -16,7 +16,7 @@ services:
   volumes:
    - project-z-pgdata:/var/lib/postgresql/data
  z-pgadmin:
-  image: dpage/pgadmin4
+  image: z-pgadmin
   networks:
    - z-net
   ports:

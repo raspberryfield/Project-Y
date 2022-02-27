@@ -5,7 +5,7 @@ According to the official documentation, every script ending with .sh and .sql m
 > Note! Run the *create-docker-env.sh* script in the **Env** folder before trying these commands.  
 
 Build the z-postgres image:  
-    `$ docker build -t z-postgres .`  
+    `$ docker build -t z-postgres . `  
 
 Run this command and you will see two images created (postgres and z-postgres):  
     `$ docker image ls`  
