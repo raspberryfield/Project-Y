@@ -17,5 +17,7 @@ Docker-compose is often used with one or multiple *docker-compose files*, it's l
 
 Run Docker Compose with File  
     `$ docker-compose -f project-z-compose.yaml up -d`  
-**-d** - Run in detached mode in terminal.
+**-d** - Run in detached mode in terminal.  
 
+Stop all:  
+    `$ docker-compose -f project-z-compose.yaml down `  
