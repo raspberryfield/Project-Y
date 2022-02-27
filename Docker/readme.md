@@ -3,6 +3,13 @@ Docker images are central components in this project. Project-Z extends several 
 All images used in this project have the prefix **z-**.  
 All images must be build locally. This is easiest done in each subfolder. There are build instructions and tips for each docker image in respectively subfolder in the **Z-Images** folder.  
 
+## Docker Build  
+Build all images needed for this project:  
+    `$ ./build-project-z-images.sh `  
+(You might need to give it execution permission: `chmod +x build-project-z-images.sh` )  
+
+> Tip! There are instructuions in each subfolder for the images, how to build and run them independently.  
+
 ## Docker Compose  
 The difference between *docker* commands and *docker-compose* commands are that *docker-compose* aims at multiple containers/images at once, while *docker* handle single a container/image.  
 
