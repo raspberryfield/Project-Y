@@ -14,7 +14,7 @@ services:
   env_file:
    - Env/postgres-variables.env
   volumes:
-   - project-z-pgdata:/var/lib/postgresql/data
+   - project-z-pgdata:/var/lib/zpostgresql/data
  z-pgadmin:
   image: z-pgadmin
   networks:
@@ -24,7 +24,15 @@ services:
   env_file:
    - Env/pgadmin-variables.env
   volumes:
-   - project-z-pgadmin:/var/lib/pgadmin
+   - project-z-pgadmin:/var/lib/zpgadmin
+ z-superset:
+  image: z-superset
+  networks:
+   - z-net
+  ports:
+   - 8004:8088
+  volumes:
+   - project-z-superset:/var/lib/zsuperset
  z-nginx:
   image: z-nginx
   networks:
@@ -38,4 +46,6 @@ volumes:
  project-z-pgdata:
   driver: local
  project-z-pgadmin:
+  driver: local
+ project-z-superset:
   driver: local

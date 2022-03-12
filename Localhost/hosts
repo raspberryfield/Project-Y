@@ -1,4 +1,6 @@
 # Add these lines to your local hosts file **/etc/hosts**
+# Note! 127.0.0.11 is reserved for internal Docker DNS.
 # The following lines are for project-Z
 127.0.0.2	static.local staticwebpageexample.local
 127.0.0.3	pgadmin pgadmin.local
+127.0.0.4	superset superset.local
