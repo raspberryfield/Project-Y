@@ -268,3 +268,7 @@ services:
 
 volumes:
   postgres-db-volume:
+networks:
+  default:
+    external:
+      name: z-net

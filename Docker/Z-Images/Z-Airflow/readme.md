@@ -30,6 +30,7 @@ Default: -u airflow -p airflow
 
 After the Airflow init, you can run the compose file:  
     `$ docker-compose up`  
+> Note! It takes some time, wait until you see message like this in the terminal: `airflow-worker_1     | [2022-03-13 13:24:51,965: INFO/MainProcess] Events of group {task} enabled by remote.`.  
 
 Stop Docker Compose:  
     `$ docker-compose down`  
@@ -39,6 +40,10 @@ Or cleanup environment:
 ## Connect to Airflow  
 Webinterface: `localhost:8080`  
     `user:airflow password: airflow`  
+
+You can use the z-ubuntu image and ping to see of *airflow-webserver* is available:  
+    `$ docker run -it --network=z-net --entrypoint /bin/bash z-ubuntu`  
+    `# ping airflow-webserver`  
 
 ## About Airflow Docker Compose  
 See [https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html](https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html) for latest updates.  
@@ -52,4 +57,36 @@ Create an environment file with the host id:
 
 ## Modifications to the Official Airflow Docker Compose Quick Start File  
 Current version: 2.2.4  
+
+At the end of the file, the z-net network configuration is added:  
+```
+networks:
+  default:
+    external:
+      name: z-net
+```  
+
+## Tutorial Postgres  
+References:  
+- Airflow Doc. Postgres Operator - [https://airflow.apache.org/docs/apache-airflow-providers-postgres/stable/operators/postgres_operator_howto_guide.html](https://airflow.apache.org/docs/apache-airflow-providers-postgres/stable/operators/postgres_operator_howto_guide.html)  
+- Managing Connections - [https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html)  
+
+In the folder *dags* there are these test dags for Project-Z:  
+ - z-example_postgres.py  
+ - z-hello_world.py  
+
+The connection to z-postgres is configured in *Admin* -> *connections*. Enter these values:  
+
+```
+connection Id : z_postgres  
+ConnectionType : Postgres  
+Host : z-postgres  
+Schema : mme  
+Login : postgres  
+Password : ****  
+Port : 5432  
+```  
+> Note! If no connection is specified for the tasks. Airflow will default to a connection named: <OperatorName>_default. e.g. *postgres_default*.  
+
+
 

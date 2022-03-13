@@ -16,7 +16,7 @@ Exit interactive mode:
     `# exit`  
 
 Start container in interactively mode connected to a network (e.g. network z-net specified in docker compose file gives *docker_z-net* use `$ docker network ls`.):  
-    `$ docker run -it --network=docker_z-net --entrypoint /bin/bash z-ubuntu`  
+    `$ docker run -it --network=z-net --entrypoint /bin/bash z-ubuntu`  
 
 ## Utility Apps
 Browse the *Dockerfile* to see which applications that are added to the z-ubuntu image.
