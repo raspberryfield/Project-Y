@@ -59,11 +59,11 @@ if [ -z $user ] || [ -z $password ]
 fi
 
 
-# CREATE ENVIRONMENT FILES
+#CREATE ENVIRONMENT FILES
 
 file_suffix="-variables.env"
 
-## if new env file, add function here, also add function name to env_files array.
+## If new env file, add function here, also add function name to env_files array.
 ## name the function as you want the first part of the file to be named.
 function dummy {
  # -n no trailing new line feed.
@@ -84,8 +84,13 @@ function pgadmin {
  echo "PGADMIN_LISTEN_PORT=80" >> ${FUNCNAME[0]}$file_suffix
  echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
 }
+function mysql {
+ echo -n "" > ${FUNCNAME[0]}$file_suffix
+ echo "MYSQL_ROOT_PASSWORD=$password" >> ${FUNCNAME[0]}$file_suffix
+ echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
+}
 ## add new env file to this array.
-env_files=(postgres pgadmin)
+env_files=(postgres pgadmin mysql)
 
 ## loop files to create
 for file in ${env_files[@]}
