@@ -27,3 +27,8 @@ Use mysql cli to connect to the instance running in docker:
 Exit:
     `> exit`  
 
+Example databases:  
+* [https://dev.mysql.com/doc/index-other.html](https://dev.mysql.com/doc/index-other.html)  
+* [https://www.mysqltutorial.org/mysql-sample-database.aspx](https://www.mysqltutorial.org/mysql-sample-database.aspx)  
+* [https://sourceforge.net/projects/awmysql/](https://sourceforge.net/projects/awmysql/) 
+
