@@ -35,6 +35,11 @@ Get version:
 Connect to the postgres instance in docker container (z-net):  
     `# psql -h z-postgres -U postgres`  
 
+### MySQL - CLI  
+Connect:  
+    `# mysql --host y-mysql --password mysql`  
+(This command will connect to database 'mysql' you will be asked to provide password. Mysql db holds user information etc. Don't put your data here.)  
+
 
 
 

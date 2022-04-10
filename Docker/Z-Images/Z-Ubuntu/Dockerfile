@@ -4,5 +4,6 @@ RUN apt-get update -y
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y dnsutils
 RUN apt-get install -y postgresql-client # psql client
+RUN apt-get install -y mysql-client
 ENTRYPOINT ["/bin/bash"]
 
