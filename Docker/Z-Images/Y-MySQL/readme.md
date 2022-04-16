@@ -16,6 +16,9 @@ Here we are running mysql based on local image *y-mysql* and naming the containe
 > Tip! add **-d** to make the image run in container in detached mode in your terminal.  
 > To stop container in detached mode, open another terminal and execute: `$ docker stop <container name>`.  
 
+## Interactive
+Connect interactively directly to the image:  
+    `$ docker exec -it some-mysql /bin/sh`  
 
 ## Additional Info   
 If you want to connect to your MySQL instance running in docker from your host, you most bind the ports between docker engine and your host. Run:  
