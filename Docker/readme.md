@@ -21,3 +21,14 @@ Run Docker Compose with File
 
 Stop all:  
     `$ docker-compose -f project-z-compose.yaml down `  
+
+## Use the Browser to Interact with the Containers  
+For each specified docker compose file, you will be able to interact with the following resources with your host's browser:
+
+**project-z-compose.yaml**  
+| System | Via Proxy | Docker Port Binding |
+| -------| --------- | ------------------- |
+| pgAdmin | pgadmin.local | localhost:8003 |
+| superset | superset.local | localhost:8004 |
+| nginx | n/a | localhost / localhost:80 |
+| static webpage | static.local | n/a |

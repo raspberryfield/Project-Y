@@ -1,0 +1,22 @@
+---
+version: "3"
+services:
+ y-mysql:
+  image: y-mysql
+  ports:
+   - 3306:3306
+  env_file:
+   - Env/mysql-variables.env
+  volumes:
+   - project-y-mysql:/var/lib/mysql
+ y-adminer:
+  image: y-adminer
+  ports:
+   - 8005:8080
+networks:
+  default:
+    external:
+      name: z-net
+volumes:
+ project-y-mysql:
+  driver: local
