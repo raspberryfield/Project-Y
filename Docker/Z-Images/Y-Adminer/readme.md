@@ -26,8 +26,30 @@ You can now browse to:
 Connect interactively directly to the image:  
     `$ docker exec -it my-adminer /bin/sh`  
 
+## Using Adminer in Project-Y  
+Open you host webbrowser and browse to either:  
+    - localhost:8005  
+
+**MySQL**
+| Column | Value |
+| -------| ----- |
+| System  | MySQL  |
+| Server | y-mysql|
+| Username | root |
+| Password | the value you entered in the env file |
+| Database | mysql |
+
+**PostgreSQL**
+| Column | Value |
+| -------| ----- |
+| System  | PostgreSQL  |
+| Server | z-postgres|
+| Username | postgres |
+| Password | the value you entered in the env file |
+| Database | postgres |
+
 ## Additional Info   
-Adminer as-is in Project-Y has only been tested with MySQL. But it should be possible to use it with:  
+Adminer as-is in Project-Y has only been tested with MySQL and PostgreSQL. But it should be possible to use it with:  
 - MySQL
 - PostgreSQL
 - SQLite
