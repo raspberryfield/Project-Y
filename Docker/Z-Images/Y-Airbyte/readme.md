@@ -11,50 +11,28 @@ Note that Airbyte is similar to Airflow in the way that it consists of several c
 - Airbyte open-source FAQ: [https://discuss.airbyte.io/c/faq/15](https://discuss.airbyte.io/c/faq/15)  
 - Connector development: [https://docs.airbyte.com/connector-development/cdk-python/](https://docs.airbyte.com/connector-development/cdk-python/)  
 
-NOTES:
-
-docker-compose --env-file env.airbyte up 
-docker-compose --env-file env.airbyte down  
-
-/   |  (_)____/ /_  __  __/ /____
-airbyte-server      |   / /| | / / ___/ __ \/ / / / __/ _ \
-airbyte-server      |  / ___ |/ / /  / /_/ / /_/ / /_/  __/
-airbyte-server      | /_/  |_/_/_/  /_.___/\__, /\__/\___/
-airbyte-server      |                     /____/
-airbyte-server      | --------------------------------------
-airbyte-server      |  Now ready at http://localhost:8000/
-airbyte-server      | --------------------------------------
-
-
-
-
 ## Build command  
-`$ docker build -t y-mysql . ` 
+No Dockerfile and build command for this image. Instead we are using the docker-compose file from Airbyte.  
 
-## Run commands  
-Run the image (stand alone, no compose command involved):  
-    `$ docker run --name some-mysql --network y-net --env-file ../../Env/mysql-variables.env y-mysql`   
-Here we are running mysql based on local image *y-mysql* and naming the container to *some-mysql*.  
+## Run Airbyte  
+All commands assumes that you are working from this directory.   
 
-> Tip! add **-d** to make the image run in container in detached mode in your terminal.  
-> To stop container in detached mode, open another terminal and execute: `$ docker stop <container name>`.  
+Start Docker Compose:  
+    `$ docker-compose --env-file env.airbyte up`  
+Stop Docker Compose:  
+    `$ docker-compose --env-file env.airbyte down`  
 
-## Interactive
-Connect interactively directly to the image:  
-    `$ docker exec -it some-mysql /bin/sh`  
+In the terminal, when you see the banner *Airbyte* and this text: *http://localhost:8000/*, airbyte is ready.
 
-## Additional Info   
-If you want to connect to your MySQL instance running in docker from your host, you most bind the ports between docker engine and your host. Run:  
-    `$ docker run --name some-mysql -p 3306:3306 --network y-net --env-file ../../Env/mysql-variables.env y-mysql`   
-Install mysql CLI (ubuntu):  
-    `$ apt-get install -y mysql-client`  
-Use mysql cli to connect to the instance running in docker:  
-    `$ mysql --host=127.0.0.1 --port=3306 -u root --password mysql`  
-Exit:
-    `> exit`  
+## Connect to Airbyte  
+Webinterface: `localhost:8000`  
 
-Example databases:  
-* [https://dev.mysql.com/doc/index-other.html](https://dev.mysql.com/doc/index-other.html)  
-* [https://www.mysqltutorial.org/mysql-sample-database.aspx](https://www.mysqltutorial.org/mysql-sample-database.aspx)  
-* [https://sourceforge.net/projects/awmysql/](https://sourceforge.net/projects/awmysql/) 
+## Modifications to the Official Airbyte Docker Compose Quick Start File  
 
+At the end of the file, the z-net network configuration is added:  
+```
+networks:
+  default:
+    external:
+      name: z-net
+```  

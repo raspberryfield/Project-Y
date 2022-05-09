@@ -204,3 +204,7 @@ volumes:
     name: ${DATA_DOCKER_MOUNT}
   db:
     name: ${DB_DOCKER_MOUNT}
+networks:
+  default:
+    external:
+      name: z-net
