@@ -23,37 +23,50 @@
 
 # https://stackoverflow.com/questions/17466561/best-way-to-structure-a-tkinter-application
 # https://pythonprogramming.net/change-show-new-frame-tkinter/
+# https://www.pythontutorial.net/tkinter/tkinter-grid/
 
 import tkinter as tk
+from tkinter import ttk
 
-window = tk.Tk()
+class AppPage(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
-# weight=1 makes alement grow if there are space left.
-window.rowconfigure([0, 1], weight=1, minsize=75)
-window.columnconfigure([0, 1], weight=1, minsize=75)
+        #self.geometry("540x100")
+        self.title('Project-Y')
+        self.resizable(1, 1)
 
+        # configure the grid
+        #self.columnconfigure(0, weight=1)
+        #self.columnconfigure([1,2], weight=2)
 
-frame1 = tk.Frame(master=window, bg="red")
-frame1.grid(row=0, column=0, columnspan=2, sticky="nesw")
-#sticky=tk.W+tk.E+tk.N+tk.S
+        self.style = ttk.Style()
+        self.style.configure("BW.TLabel", foreground="black", background="white")
 
-#label = tk.Label(master=frame1, text="Hello World!")
-#label.pack()
+        # l1 = ttk.Label(text="Test", style="BW.TLabel")
 
+        self.label_list = []
 
-#for i in range(3):
-#    window.columnconfigure(i, weight=1, minsize=75)
-#    window.rowconfigure(i, weight=1, minsize=50)
-#
-#    for j in range(0, 3):
-#        frame = tk.Frame(
-#            master=window,
-#            relief=tk.RAISED,
-#            borderwidth=1
-#        )
-#        frame.grid(row=i, column=j, padx=5, pady=5)
-#        label = tk.Label(master=frame, text=f"Row {i}\nColumn {j}")
-#        label.pack(padx=5, pady=5)
+        self.create_info_label()
+        self.create_entries()
 
-window.mainloop()
+    def create_info_label(self):
+        # checkbox
+        agreement = tk.StringVar()
+        self.checkbox = ttk.Checkbutton(self, variable=agreement)
+        self.checkbox.grid(column=0, row=1, sticky="nesw")
+        # name
+        self.lbl_name = ttk.Label(self, text="NAME", style="BW.TLabel")
+        self.lbl_name.grid(column=1, row=1, sticky="nesw")
+
+    def create_entries(self):
+        for i in range(2,4):
+            lbl_name = ttk.Label(text="NAME"+str(i), style="BW.TLabel")
+            self.label_list.append(lbl_name)
+        for index, value in enumerate(self.label_list):
+            value.grid(column=1, row=index+2, sticky="nesw")
+
+if __name__ == "__main__":
+    app = AppPage()
+    app.mainloop()
 
