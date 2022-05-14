@@ -33,10 +33,11 @@ import subprocess
 
 
 class Entity:
-    def __init__(self, checkbox, checkbox_var, name):
+    def __init__(self, checkbox, checkbox_var, name, build_cmd):
         self.checkbox = checkbox
         self.checkbox_var = checkbox_var
         self.lbl_name = name
+        self.build_cmd = build_cmd
         # How to acces values:
         # Lable : entity.lbl_name.get['text'] 
 
@@ -105,7 +106,8 @@ class AppPage(tk.Tk):
             checbox_var = tk.StringVar()
             checkbox = ttk.Checkbutton(self, variable=checbox_var)
             lbl_name = ttk.Label(text=obj["name"])
-            entity = Entity(checkbox, checbox_var, lbl_name)
+            build_cmd = obj["buildCmd"]
+            entity = Entity(checkbox, checbox_var, lbl_name, build_cmd)
             self.entities.append(entity)
         # self.entities - grid
         for index, entity in enumerate(self.entities):
@@ -146,7 +148,9 @@ class AppPage(tk.Tk):
                 self.text_info_section['state'] = 'disable'
                 self.text_info_section.see("end") # autoscroll
                 # test
-                test = (subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE).stdout.read())
+                print("---")
+                print(entity.build_cmd)
+                test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
                 print(test)
                 self.text_info_section['state'] = 'normal'
                 self.text_info_section.insert(tk.END, test)

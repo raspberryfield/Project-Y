@@ -4,7 +4,7 @@
     "description": "Reverse proxy for Project-Y. Used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
     "runCmd": "docker ",
     "stopCmd": "todo",
-    "buildCmd": "todo",
+    "buildCmd": "docker build -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",
     "access": ["localhost", "nginx.local"],
     "tags": ["ALL", "DW"]
 }
