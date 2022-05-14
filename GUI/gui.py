@@ -29,6 +29,7 @@ import tkinter as tk
 from tkinter import ttk
 import sqlite3
 import json
+import subprocess
 
 
 class Entity:
@@ -36,6 +37,8 @@ class Entity:
         self.checkbox = checkbox
         self.checkbox_var = checkbox_var
         self.lbl_name = name
+        # How to acces values:
+        # Lable : entity.lbl_name.get['text'] 
 
 class AppPage(tk.Tk):
     def __init__(self):
@@ -115,56 +118,43 @@ class AppPage(tk.Tk):
             print(entry.lbl_name["text"])
         
     def create_info_section(self):
+        # Frame
         self.frame_info_section = ttk.Frame(self)
         self.frame_info_section.grid(column=0, row=4, columnspan=3)
-
+        # Text
         self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable")
         self.text_info_section.pack(side='left')
-
+        # Scrollbar
         self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, orient='vertical', command=self.text_info_section.yview)
         self.text_info_scrollbar.pack(side='right', fill='both')
-
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
 
-        '''
-        # create the text widget
-        text = tk.Text(root, height=10)
-        text.grid(row=0, column=0, sticky='ew')
-
-        # create a scrollbar widget and set its command to the text widget
-        scrollbar = ttk.Scrollbar(root, orient='vertical', command=text.yview)
-        scrollbar.grid(row=0, column=1, sticky='ns')
-
-        #  communicate back to the scrollbar
-        text['yscrollcommand'] = scrollbar.set
-        '''
-
-        #text['state'] = 'disabled'
-        print("test...")
-
-    
-        
     def create_button_section(self):
+        # Frame
         self.frame_button_section = ttk.Frame(self)
         self.frame_button_section.grid(column=0, row=5, columnspan=3, sticky="e")
-        # buttons
+        # RUN - button
         self.button_run = ttk.Button(self.frame_button_section, text="RUN", command=self.run_cmd)
         self.button_run.pack(side='right', padx=4, pady=4)
     
     def run_cmd(self):
-        print("RUN!")
-        self.text_info_section['state'] = 'normal'
-        self.text_info_section.insert(1.0, "RUN! \n")
-        self.text_info_section.insert(2.0, "RUN! \n")
-        self.text_info_section.insert(3.0, "RUN! \n")
-        self.text_info_section.insert(4.0, "RUN! \n")
-        self.text_info_section.insert(5.0, "RUN! \n")
-        self.text_info_section.insert(6.0, "RUN! \n")
-    
+        for index, entity in enumerate(self.entities):
+            if entity.checkbox_var.get() == "1":
+                self.text_info_section['state'] = 'normal'
+                self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
+                self.text_info_section['state'] = 'disable'
+                self.text_info_section.see("end") # autoscroll
+                # test
+                test = (subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE).stdout.read())
+                print(test)
+                self.text_info_section['state'] = 'normal'
+                self.text_info_section.insert(tk.END, test)
+  
 
 
 if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
 
+# https://stackoverflow.com/questions/89228/how-do-i-execute-a-program-or-call-a-system-command
