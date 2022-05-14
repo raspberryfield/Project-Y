@@ -21,8 +21,15 @@ con = sqlite3.connect('projecty.sqlitedb')
 cur = con.cursor()
 cur.execute("DROP TABLE IF EXISTS entries")
 cur.execute("CREATE TABLE entries (id varchar(3), data json)")
-
+for entry in json_data:
+    cur.execute("INSERT INTO entries VALUES (?, ?)", [entry['id'], json.dumps(entry)])
+    con.commit()
+print("-----")
+for row in cur.execute("SELECT id, data FROM entries ORDER BY id ASC"):
+    print(row[1])
+print("-----")
 cur.close()
+con.close()
 
 print(json_data)
 

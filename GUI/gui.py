@@ -27,6 +27,8 @@
 
 import tkinter as tk
 from tkinter import ttk
+import sqlite3
+import json
 
 class AppPage(tk.Tk):
     def __init__(self):
@@ -40,31 +42,53 @@ class AppPage(tk.Tk):
         #self.columnconfigure(0, weight=1)
         #self.columnconfigure([1,2], weight=2)
 
-        self.style = ttk.Style()
-        self.style.configure("BW.TLabel", foreground="black", background="white")
+        # Styles
+        self.style = ttk.Style(self)
+        self.style.configure('Header.TLabel', foreground="white", background="black")
 
         # l1 = ttk.Label(text="Test", style="BW.TLabel")
+        #self.style.configure('Heading.TLabel', font=('Helvetica', 12))
+        #heading = ttk.Label(self, text='Member Login', style='Heading.TLabel')
 
-        self.label_list = []
+        self.entries = []
 
-        self.create_info_label()
+        self.create_entry_header()
         self.create_entries()
 
-    def create_info_label(self):
+    def create_entry_header(self):
         # checkbox
-        agreement = tk.StringVar()
-        self.checkbox = ttk.Checkbutton(self, variable=agreement)
+        self.chbox_header_var = tk.StringVar()
+        self.checkbox = ttk.Checkbutton(self, variable=self.chbox_header_var)
         self.checkbox.grid(column=0, row=1, sticky="nesw")
         # name
-        self.lbl_name = ttk.Label(self, text="NAME", style="BW.TLabel")
-        self.lbl_name.grid(column=1, row=1, sticky="nesw")
+        self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+        self.lbl_header_name.grid(column=1, row=1, sticky="nesw")
 
     def create_entries(self):
-        for i in range(2,4):
-            lbl_name = ttk.Label(text="NAME"+str(i), style="BW.TLabel")
-            self.label_list.append(lbl_name)
-        for index, value in enumerate(self.label_list):
+        # DB - sqlite
+        con = sqlite3.connect('projecty.sqlitedb')
+        cur = con.cursor()
+        db_entries = []
+        for row in cur.execute("SELECT id, data FROM entries ORDER BY id ASC"):
+            db_entries.append(json.loads(row[1]))
+        cur.close()
+        con.close()
+        # self.entries
+        for entry in db_entries:
+            lbl_name = ttk.Label(text=entry["name"])
+            self.entries.append(lbl_name)
+        for index, value in enumerate(self.entries):
             value.grid(column=1, row=index+2, sticky="nesw")
+
+        # test
+        for entry in self.entries:
+            print(entry)
+        
+        #for i in range(2,4):
+        #    lbl_name = ttk.Label(text="NAME"+str(i), style="BW.TLabel")
+        #    self.entries.append(lbl_name)
+        #for index, value in enumerate(self.entries):
+        #    value.grid(column=1, row=index+2, sticky="nesw")
 
 if __name__ == "__main__":
     app = AppPage()
