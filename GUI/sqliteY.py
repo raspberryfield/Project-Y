@@ -19,13 +19,13 @@ for file in json_filenames:
 # Store data in SQLite.
 con = sqlite3.connect('projecty.sqlitedb')
 cur = con.cursor()
-cur.execute("DROP TABLE IF EXISTS entries")
-cur.execute("CREATE TABLE entries (id varchar(3), data json)")
+cur.execute("DROP TABLE IF EXISTS entities")
+cur.execute("CREATE TABLE entities (id varchar(3), data json)")
 for entry in json_data:
-    cur.execute("INSERT INTO entries VALUES (?, ?)", [entry['id'], json.dumps(entry)])
+    cur.execute("INSERT INTO entities VALUES (?, ?)", [entry['id'], json.dumps(entry)])
     con.commit()
 print("-----")
-for row in cur.execute("SELECT id, data FROM entries ORDER BY id ASC"):
+for row in cur.execute("SELECT id, data FROM entities ORDER BY id ASC"):
     print(row[1])
 print("-----")
 cur.close()
@@ -55,7 +55,7 @@ cur.execute("CREATE TABLE IF NOT EXISTS stocks
                (date text, trans text, symbol text, qty real, price real)")
 
 # Json example
-cur.execute("CREATE TABLE IF NOT EXISTS entries (id varchar(3), data json)")
+cur.execute("CREATE TABLE IF NOT EXISTS entities (id varchar(3), data json)")
 
 # Insert a row of data
 cur.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
