@@ -1,0 +1,10 @@
+{
+    "id": 1,
+    "name": "NGINX",
+    "description": "Reverse proxy for Project-Y. Used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
+    "runCmd": "docker ",
+    "stopCmd": "todo",
+    "buildCmd": "todo",
+    "access": ["localhost", "nginx.local"],
+    "tags": ["ALL", "DW"]
+}

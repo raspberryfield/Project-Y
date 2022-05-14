@@ -1,0 +1,10 @@
+{
+    "id": 2,
+    "name": "POSTGRESQL/PGADMIN",
+    "description": "PostgreSQL is the database used for datawarehouse exercises. The IDE is a web-based tool called pgAdmin.",
+    "runCmd": "todo",
+    "stopCmd": "todo",
+    "buildCmd": "todo",
+    "access": ["localhost", "pgadmin.local"],
+    "tags": ["ALL", "DW"]
+}
