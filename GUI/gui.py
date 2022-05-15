@@ -27,6 +27,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter.messagebox import showerror, showwarning, showinfo
 import sqlite3
 import json
 import subprocess
@@ -35,13 +36,16 @@ BLACK = "#000000"
 WHITE = "#ffffff"
 DARK_GREEN = "#047b80"
 VERY_DARK_GREEN = "#014145"
+DARK_GREY = "#545454"
 
 class Entity:
-    def __init__(self, checkbox, checkbox_var, name, build_cmd):
-        self.checkbox = checkbox
+    def __init__(self, frame_checkbox, checkbox_var, label_name, label_status, label_built):
+        self.frame_checkbox = frame_checkbox
         self.checkbox_var = checkbox_var
-        self.lbl_name = name
-        self.build_cmd = build_cmd
+        self.label_name = label_name
+        self.label_status = label_status
+        self.label_built = label_built
+        #self.build_cmd = build_cmd
         # How to acces values:
         # Lable : entity.lbl_name.get['text'] 
 
@@ -49,37 +53,43 @@ class AppPage(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        # Configurations
+        # window
         self.title('Project-Y')
         self.resizable(tk.FALSE, tk.FALSE)
-
         # configure the grid
         self.columnconfigure(0, weight=1)
         self.columnconfigure([1,2], weight=8)
         self.columnconfigure([3,4], weight=4)
 
         # Styles
+        # header styles
         self.style = ttk.Style(self)
         self.style.configure("Header.TFrame", background=VERY_DARK_GREEN)
         self.style.configure("Header.TCheckbutton", background=VERY_DARK_GREEN, indicatorcolor=WHITE)
         self.style.map('Header.TCheckbutton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Header.TLabel", foreground=WHITE, background=VERY_DARK_GREEN)
+        # entity styles
+        self.style.configure("Entity.TFrame", background=BLACK)
+        self.style.configure("Entity.TCheckbutton", background=BLACK, indicatorcolor=WHITE)
+        self.style.map('Entity.TCheckbutton', background=[('active', DARK_GREY)],
+            indicatorcolor=[('selected', DARK_GREEN)])
+        self.style.configure("Entity.TLabel", foreground=WHITE, background=BLACK)
 
         # Structure
+        # Render order
         self.row_start_header = 0
         self.row_start_entities = 1
         self.row_start_info_section = 2
-
         # Header
         self.create_header_section()
-
-        
-
+        # Entities
         self.entities = []
-        self.create_entities()
+        self.create_entity_section()
 
-        self.create_info_section()
-        self.create_button_section()
+        #self.create_info_section()
+        #self.create_button_section()
         
         
 
@@ -94,18 +104,24 @@ class AppPage(tk.Tk):
         self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
         self.lbl_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.lbl_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
+        self.lbl_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
         self.lbl_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
         # Built
-        self.lbl_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
+        self.lbl_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
         self.lbl_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
-        self.lbl_header_info = ttk.Label(self, text="INFO", style="Header.TLabel")
-        self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+        #self.lbl_header_info = ttk.Label(self, text="INFO", style="Header.TLabel")
+        #self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+
+        self.button_info = ttk.Button(self,
+                                    text='Show an information message',
+                                    command=lambda: showinfo(
+                                        title='Information',
+                                        message='This is an \n information message.'))
+        self.button_info.grid(column=4, row=self.row_start_header, sticky="NESW")
 
 
-
-    def create_entities(self):
+    def create_entity_section(self):
         # DB - sqlite
         con = sqlite3.connect('projecty.sqlitedb')
         cur = con.cursor()
@@ -116,21 +132,38 @@ class AppPage(tk.Tk):
         con.close()
         # self.entities - store
         for obj in db_entities:
-            checbox_var = tk.StringVar()
-            checkbox = ttk.Checkbutton(self, variable=checbox_var)
-            lbl_name = ttk.Label(text=obj["name"])
-            build_cmd = obj["buildCmd"]
-            entity = Entity(checkbox, checbox_var, lbl_name, build_cmd)
+            # Checkbox
+            frame_checkbox = ttk.Frame(self, style="Entity.TFrame")
+            checkbox_var = tk.StringVar()
+            checkbox = ttk.Checkbutton(frame_checkbox, variable=checkbox_var, style="Entity.TCheckbutton")
+            checkbox.pack()
+            # Label
+            label_name = ttk.Label(text=obj["name"], style="Entity.TLabel")
+            label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
+            label_built = ttk.Label(text=" ?", style="Entity.TLabel")
+            # Store
+            entity = Entity(frame_checkbox, checkbox_var, label_name, label_status, label_built)
             self.entities.append(entity)
-        # self.entities - grid
+
+            #checbox_var = tk.StringVar()
+            #checkbox = ttk.Checkbutton(self, variable=checbox_var)
+            
+            #lbl_name = ttk.Label(text=obj["name"])
+            #build_cmd = obj["buildCmd"]
+            #entity = Entity(frame_checkbox, checkbox_var, lbl_name, build_cmd)
+            #self.entities.append(entity)
+        # self.entities - grid/display
         for index, entity in enumerate(self.entities):
-            entity.checkbox.grid(column=0, row=index+self.row_start_entities)
-            entity.lbl_name.grid(column=1, row=index+self.row_start_entities, sticky="nesw")
-            self.row_start_info_section += 1 # Dynamically set the row that the info label can start on.
+            entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
+            entity.label_name.grid(column=1, row=index+self.row_start_entities, sticky="NSEW")
+            entity.label_status.grid(column=2, row=index+self.row_start_entities, sticky="NSEW")
+            entity.label_built.grid(column=3, row=index+self.row_start_entities, sticky="NSEW")
+            # Dynamically set the row that the info label can start on.
+            self.row_start_info_section += 1
 
         # test
-        for entry in self.entities:
-            print(entry.lbl_name["text"])
+        #for entry in self.entities:
+            #print(entry.lbl_name["text"])
         
     def create_info_section(self):
         # Frame
