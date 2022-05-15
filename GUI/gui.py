@@ -49,34 +49,28 @@ class AppPage(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        #self.geometry("540x100") - How to set fixed window size.
         self.title('Project-Y')
         self.resizable(tk.FALSE, tk.FALSE)
 
         # configure the grid
         self.columnconfigure(0, weight=1)
         self.columnconfigure([1,2], weight=8)
+        self.columnconfigure([3,4], weight=4)
 
         # Styles
         self.style = ttk.Style(self)
         self.style.configure("Header.TFrame", background=VERY_DARK_GREEN)
-        self.style.configure("Header.TLabel", foreground=WHITE, background=BLACK)
         self.style.configure("Header.TCheckbutton", background=VERY_DARK_GREEN, indicatorcolor=WHITE)
         self.style.map('Header.TCheckbutton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
-
-
-        # activebackground, highlightbackground, highlightcolor
-
-        # l1 = ttk.Label(text="Test", style="BW.TLabel")
-        #self.style.configure('Heading.TLabel', font=('Helvetica', 12))
-        #heading = ttk.Label(self, text='Member Login', style='Heading.TLabel')
+        self.style.configure("Header.TLabel", foreground=WHITE, background=VERY_DARK_GREEN)
 
         # Structure
         self.row_start_header = 0
         self.row_start_entities = 1
         self.row_start_info_section = 2
-        
+
+        # Header
         self.create_header_section()
 
         
@@ -90,24 +84,26 @@ class AppPage(tk.Tk):
         
 
     def create_header_section(self):
-        # Todo: create a Entity object of this and loop the grid.
-        # checkbox
+        # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
         self.checkbox_header_var = tk.StringVar()
         self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var, style="Header.TCheckbutton")
         self.checkbox_header.pack()
-
-        #self.checkbox_header_var = tk.StringVar()
-        #self.checkbox = ttk.Checkbutton(self, variable=self.checkbox_header_var, style="Header.TCheckbutton")
-        #self.checkbox.grid(column=0, row=self.row_start_header, sticky="EW")
-        
-        # name
+        # Name
         self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
         self.lbl_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
-        # status
+        # Status
         self.lbl_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
         self.lbl_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
+        # Built
+        self.lbl_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
+        self.lbl_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
+        # Info
+        self.lbl_header_info = ttk.Label(self, text="INFO", style="Header.TLabel")
+        self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+
+
 
     def create_entities(self):
         # DB - sqlite
@@ -139,7 +135,7 @@ class AppPage(tk.Tk):
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self)
-        self.frame_info_section.grid(column=0, row=4, columnspan=3)
+        self.frame_info_section.grid(column=0, row=4, columnspan=4)
         # Text
         self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable")
         self.text_info_section.pack(side='left')
