@@ -31,6 +31,10 @@ import sqlite3
 import json
 import subprocess
 
+BLACK = "#000000"
+WHITE = "#ffffff"
+DARK_GREEN = "#047b80"
+VERY_DARK_GREEN = "#014145"
 
 class Entity:
     def __init__(self, checkbox, checkbox_var, name, build_cmd):
@@ -47,7 +51,7 @@ class AppPage(tk.Tk):
 
         #self.geometry("540x100") - How to set fixed window size.
         self.title('Project-Y')
-        # self.resizable(1, 1) # uncomment to allow user to resize the window.
+        self.resizable(tk.FALSE, tk.FALSE)
 
         # configure the grid
         self.columnconfigure(0, weight=1)
@@ -55,8 +59,14 @@ class AppPage(tk.Tk):
 
         # Styles
         self.style = ttk.Style(self)
-        self.style.configure("Header.TLabel", foreground="white", background="black")
-        self.style.configure("Info.TLabel", foreground="black", background="white")
+        self.style.configure("Header.TFrame", background=VERY_DARK_GREEN)
+        self.style.configure("Header.TLabel", foreground=WHITE, background=BLACK)
+        self.style.configure("Header.TCheckbutton", background=VERY_DARK_GREEN, indicatorcolor=WHITE)
+        self.style.map('Header.TCheckbutton', background=[('active', DARK_GREEN)],
+            indicatorcolor=[('selected', DARK_GREEN)])
+
+
+        # activebackground, highlightbackground, highlightcolor
 
         # l1 = ttk.Label(text="Test", style="BW.TLabel")
         #self.style.configure('Heading.TLabel', font=('Helvetica', 12))
@@ -82,9 +92,16 @@ class AppPage(tk.Tk):
     def create_header_section(self):
         # Todo: create a Entity object of this and loop the grid.
         # checkbox
-        self.chbox_header_var = tk.StringVar()
-        self.checkbox = ttk.Checkbutton(self, variable=self.chbox_header_var)
-        self.checkbox.grid(column=0, row=self.row_start_header)
+        self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
+        self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
+        self.checkbox_header_var = tk.StringVar()
+        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var, style="Header.TCheckbutton")
+        self.checkbox_header.pack()
+
+        #self.checkbox_header_var = tk.StringVar()
+        #self.checkbox = ttk.Checkbutton(self, variable=self.checkbox_header_var, style="Header.TCheckbutton")
+        #self.checkbox.grid(column=0, row=self.row_start_header, sticky="EW")
+        
         # name
         self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
         self.lbl_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
@@ -161,4 +178,11 @@ if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
 
-# https://stackoverflow.com/questions/89228/how-do-i-execute-a-program-or-call-a-system-command
+# Executing shell commands: https://stackoverflow.com/questions/89228/how-do-i-execute-a-program-or-call-a-system-command
+# Tkinter tutorial, very good: https://www.pythontutorial.net/tkinter/tkinter-hello-world/
+
+# https://docs.python.org/3/library/tk.html
+# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/checkbutton.html
+# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-Checkbutton.html
+# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-map.html
+
