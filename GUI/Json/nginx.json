@@ -1,7 +1,7 @@
 {
     "id": 1,
     "name": "NGINX",
-    "description": "Reverse proxy for Project-Y. Used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
+    "description": "Nginx is a reverse proxy for Project-Y. It's used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
     "runCmd": "docker ",
     "stopCmd": "todo",
     "buildCmd": "docker build -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",

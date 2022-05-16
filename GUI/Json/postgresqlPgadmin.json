@@ -1,7 +1,7 @@
 {
     "id": 2,
     "name": "POSTGRESQL/PGADMIN",
-    "description": "PostgreSQL is the database used for datawarehouse exercises. The IDE is a web-based tool called pgAdmin.",
+    "description": "PostgreSQL is the database used for datawarehouse exercises. PgAdmin ia a web-based IDE for PostgreSQL.",
     "runCmd": "todo",
     "stopCmd": "todo",
     "buildCmd": "todo",
