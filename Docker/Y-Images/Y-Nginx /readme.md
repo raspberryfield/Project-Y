@@ -3,7 +3,7 @@ Webserver and reverse proxy.
 
 ## Useful commands
 Build the z-postgres image:  
-    `$ docker build -t z-nginx . `  
+    `$ docker build -t y-nginx . `  
 
 Interactive mode with container:  
     `$ docker exec -it <container id> /bin/bash`  

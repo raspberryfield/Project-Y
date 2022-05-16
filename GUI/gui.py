@@ -39,15 +39,17 @@ VERY_DARK_GREEN = "#014145"
 DARK_GREY = "#545454"
 
 class Entity:
-    def __init__(self, frame_checkbox, checkbox_var, label_name, label_status, label_built):
+    def __init__(self, frame_checkbox, checkbox_var, label_name, 
+                    label_status, label_built, frame_button):
         self.frame_checkbox = frame_checkbox
         self.checkbox_var = checkbox_var
         self.label_name = label_name
         self.label_status = label_status
         self.label_built = label_built
+        self.frame_button = frame_button
         #self.build_cmd = build_cmd
         # How to acces values:
-        # Lable : entity.lbl_name.get['text'] 
+        # Lable : entity.label_name.get['text'] 
 
 class AppPage(tk.Tk):
     def __init__(self):
@@ -55,7 +57,8 @@ class AppPage(tk.Tk):
 
         # Configurations
         # window
-        self.title('Project-Y')
+        self.title('PROJECT-Y')
+        self.eval('tk::PlaceWindow . center') #centers window on start.
         self.resizable(tk.FALSE, tk.FALSE)
         # configure the grid
         self.columnconfigure(0, weight=1)
@@ -137,12 +140,20 @@ class AppPage(tk.Tk):
             checkbox_var = tk.StringVar()
             checkbox = ttk.Checkbutton(frame_checkbox, variable=checkbox_var, style="Entity.TCheckbutton")
             checkbox.pack()
-            # Label
+            # Labels
             label_name = ttk.Label(text=obj["name"], style="Entity.TLabel")
             label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
             label_built = ttk.Label(text=" ?", style="Entity.TLabel")
-            # Store
-            entity = Entity(frame_checkbox, checkbox_var, label_name, label_status, label_built)
+            # Info button
+            frame_button = ttk.Frame(self, style="Entity.TFrame")
+            button = ttk.Button(frame_button,
+                                    text='INFO',
+                                    command=lambda: showinfo(
+                                        title='Information1',
+                                        message='This is an \n information message.'))
+            button.pack()
+            # Store objects in list
+            entity = Entity(frame_checkbox, checkbox_var, label_name, label_status, label_built, frame_button)
             self.entities.append(entity)
 
             #checbox_var = tk.StringVar()
@@ -152,12 +163,14 @@ class AppPage(tk.Tk):
             #build_cmd = obj["buildCmd"]
             #entity = Entity(frame_checkbox, checkbox_var, lbl_name, build_cmd)
             #self.entities.append(entity)
+
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
             entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
             entity.label_name.grid(column=1, row=index+self.row_start_entities, sticky="NSEW")
             entity.label_status.grid(column=2, row=index+self.row_start_entities, sticky="NSEW")
             entity.label_built.grid(column=3, row=index+self.row_start_entities, sticky="NSEW")
+            entity.frame_button.grid(column=4, row=index+self.row_start_entities, sticky="NSEW")
             # Dynamically set the row that the info label can start on.
             self.row_start_info_section += 1
 
