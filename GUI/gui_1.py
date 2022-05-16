@@ -32,7 +32,7 @@ import sqlite3
 import json
 import subprocess
 
-BLACK = "#141414"
+BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
 DARK_GREEN = "#047b80"
 VERY_DARK_GREEN = "#014145"
@@ -72,22 +72,22 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Entity.TLabel", foreground=WHITE, background=BLACK)
         self.style.configure("Entity.TButton", foreground=WHITE, background=VERY_DARK_GREY)
-
         self.style.map('Entity.TButton', background=[('active', DARK_GREY)],
             indicatorcolor=[('selected', DARK_GREEN)])
+        # info textbox styles
 
         # Structure
         # Render order
         self.row_start_header = 0
         self.row_start_entities = 1
-        self.row_start_info_section = 2
+        self.row_start_info_section = 2 # this will be incremented by the entity loop.
         # Header
         self.create_header_section()
         # Entities
         self.entities = []
         self.create_entity_section()
 
-        #self.create_info_section()
+        self.create_info_section()
         #self.create_button_section()
         
         
@@ -109,9 +109,8 @@ class AppPage(tk.Tk):
         self.lbl_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
         self.lbl_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
-        self.lbl_header_info = ttk.Label(self, text=" INFO", style="Header.TLabel")
+        self.lbl_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
         self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
-
 
     def create_entity_section(self):
         # DB - sqlite
@@ -141,7 +140,8 @@ class AppPage(tk.Tk):
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self)
-        self.frame_info_section.grid(column=0, row=4, columnspan=4)
+        self.frame_info_section.grid(column=0, row=self.row_start_info_section , columnspan=5)
+
         # Text
         self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable")
         self.text_info_section.pack(side='left')
@@ -191,12 +191,12 @@ class AppPage(tk.Tk):
             # button
             self.frame_button = ttk.Frame(style="Entity.TFrame")
             self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
-                                command=lambda:showinfo(
-                                    title=self.entity['name'],
-                                    message=self.entity['description']
-                                    )
+                                command=self.show_info_message
                                 )
-            self.button.pack()
+            self.button.pack(side='right')
+        # Methods
+        def show_info_message(self):
+            showinfo(title=self.entity['name'],message=self.entity['description'])
 
 
 if __name__ == "__main__":
