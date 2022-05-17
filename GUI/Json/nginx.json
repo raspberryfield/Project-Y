@@ -5,6 +5,8 @@
     "runCmd": "docker ",
     "stopCmd": "todo",
     "buildCmd": "docker build -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",
-    "access": ["localhost", "nginx.local"],
-    "tags": ["ALL", "DW"]
+    "access": [{"127.0.0.1": "localhost defaults to nginx start page."},
+        {"localhost":"Localhost defaults to localhost:80 in browser. Also Nginx start page."},
+        {"nginx.local" : "Static webpage example with Nginx"}],
+    "additionalInformation": ["None"]
 }

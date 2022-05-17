@@ -5,6 +5,6 @@
     "runCmd": "todo",
     "stopCmd": "todo",
     "buildCmd": "todo",
-    "access": ["localhost", "pgadmin.local"],
-    "tags": ["ALL", "DW"]
+    "access": [{"pgadmin.local":"Webpage for pgAdmin."}],
+    "additionalInformation": ["This will be interestening."]
 }

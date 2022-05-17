@@ -196,7 +196,20 @@ class AppPage(tk.Tk):
             self.button.pack(side='right')
         # Methods
         def show_info_message(self):
-            showinfo(title=self.entity['name'],message=self.entity['description'])
+            title = self.entity['name']
+            message = self.entity['description'] + "\n\n"
+            message = message + "Access: \n"
+            for dictionary in self.entity['access']:
+                for key,value in dictionary.items():
+                    message = message + "\u2022 " + key + " - " + value + "\n"
+            message = message + "\n" + "Additional Information: " + "\n"
+            for item in self.entity['additionalInformation']:
+                if item == "None":
+                    message = message + "None"
+                    break
+                else:
+                    message = message + "\u2022 " + item + "\n"
+            showinfo(title=title,message=message)
 
 
 if __name__ == "__main__":
