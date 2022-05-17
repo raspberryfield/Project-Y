@@ -51,9 +51,9 @@ class AppPage(tk.Tk):
         self.eval('tk::PlaceWindow . center') #centers window on start.
         self.resizable(tk.FALSE, tk.FALSE)
         # configure the grid
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure([1,2], weight=8)
-        self.columnconfigure([3,4], weight=4)
+        self.columnconfigure(0, weight=1) # CHECKBOX
+        self.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        self.columnconfigure([3,4], weight=4) # BUILT | INFO
 
         # Styles
         # Style config
@@ -75,6 +75,16 @@ class AppPage(tk.Tk):
         self.style.map('Entity.TButton', background=[('active', DARK_GREY)],
             indicatorcolor=[('selected', DARK_GREEN)])
         # info textbox styles
+        self.style.configure("Info.TFrame", background=BLACK)
+        # scrollbar style
+        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, borderwidth=0.5)
+        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)],
+            indicatorcolor=[('selected', GREY)])
+        # button/cmd pane style
+        self.style.configure("Cmd.TFrame", background=BLACK)
+        self.style.configure("Cmd.TButton", foreground=WHITE, background=VERY_DARK_GREEN)
+        self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
+            indicatorcolor=[('selected', DARK_GREEN)])
 
         # Structure
         # Render order
@@ -86,10 +96,10 @@ class AppPage(tk.Tk):
         # Entities
         self.entities = []
         self.create_entity_section()
-
+        # Info
         self.create_info_section()
-        #self.create_button_section()
-        
+        # Buttons
+        self.create_button_section()
         
 
     def create_header_section(self):
@@ -139,26 +149,30 @@ class AppPage(tk.Tk):
         
     def create_info_section(self):
         # Frame
-        self.frame_info_section = ttk.Frame(self)
-        self.frame_info_section.grid(column=0, row=self.row_start_info_section , columnspan=5)
-
+        self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
+        self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
-        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable")
+        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable", background=BLACK, foreground=WHITE,
+                                        highlightthickness=1, highlightbackground=VERY_DARK_GREY)
         self.text_info_section.pack(side='left')
         # Scrollbar
-        self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, orient='vertical', command=self.text_info_section.yview)
+        self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, style="Vertical.TScrollbar", orient='vertical', command=self.text_info_section.yview)
         self.text_info_scrollbar.pack(side='right', fill='both')
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
 
     def create_button_section(self):
         # Frame
-        self.frame_button_section = ttk.Frame(self)
-        self.frame_button_section.grid(column=0, row=5, columnspan=3, sticky="e")
-        # RUN - button
-        self.button_run = ttk.Button(self.frame_button_section, text="RUN", command=self.run_cmd)
-        self.button_run.pack(side='right', padx=4, pady=4)
-    
+        self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
+        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        # Buttons
+        # Run
+        self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
+        self.button_run.pack(side='right', padx=(0,4), pady=4)
+        # Status
+        self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
+        self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
+    # Commands
     def run_cmd(self):
         for index, entity in enumerate(self.entities):
             if entity.checkbox_var.get() == "1":
@@ -173,6 +187,22 @@ class AppPage(tk.Tk):
                 print(test)
                 self.text_info_section['state'] = 'normal'
                 self.text_info_section.insert(tk.END, test)
+
+    def status_cmd(self):
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1":
+                print("checked!")
+                #self.text_info_section['state'] = 'normal'
+                #self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
+                #self.text_info_section['state'] = 'disable'
+                #self.text_info_section.see("end") # autoscroll
+                ## test
+                #print("---")
+                #print(entity.build_cmd)
+                #test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+                #print(test)
+                #self.text_info_section['state'] = 'normal'
+                #self.text_info_section.insert(tk.END, test)
     
 
     class Entity():

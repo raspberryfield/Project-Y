@@ -37,6 +37,7 @@ def stylename_elements_options(stylename):
 stylename_elements_options('TCheckbutton')
 stylename_elements_options('TFrame')
 stylename_elements_options('TButton')
+stylename_elements_options('Vertical.TScrollbar')
 
 '''
     A ttk widget is made up of elements. The layout determines how elements assembled the widget.
