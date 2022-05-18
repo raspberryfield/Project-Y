@@ -78,7 +78,7 @@ class AppPage(tk.Tk):
         self.style.configure("Info.TFrame", background=BLACK)
         # scrollbar style
         self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, troughcolor=VERY_DARK_GREY, arrowcolor=WHITE, borderwidth=0.5)
-        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)], troughcolor=[('active', VERY_DARK_GREY)], arrowcolor=[('active', BLACK)],
+        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)], troughcolor=[('active', VERY_DARK_GREY)], arrowcolor=[('active', WHITE)],
             indicatorcolor=[('selected', GREY)])
         # button/cmd pane style
         self.style.configure("Cmd.TFrame", background=BLACK)
