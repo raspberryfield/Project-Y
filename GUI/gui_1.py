@@ -101,27 +101,37 @@ class AppPage(tk.Tk):
         # Buttons
         self.create_button_section()
         
-
+    # Header
     def create_header_section(self):
         # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
         self.checkbox_header_var = tk.StringVar()
-        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var, style="Header.TCheckbutton")
+        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+                                        style="Header.TCheckbutton", command=self.toogle_checkboxes)
         self.checkbox_header.pack()
         # Name
-        self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
-        self.lbl_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
+        self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+        self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.lbl_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
-        self.lbl_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
+        self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
         # Built
-        self.lbl_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
-        self.lbl_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
+        self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
-        self.lbl_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
-        self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
+        self.label_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+    # checkbox function
+    def toogle_checkboxes(self):
+        if self.checkbox_header_var.get() == "1":
+            for entity in self.entities:
+                entity.checkbox_var.set("1")
+        else:
+            for entity in self.entities:
+                entity.checkbox_var.set("0")
 
+    # Entities
     def create_entity_section(self):
         # DB - sqlite
         con = sqlite3.connect('projecty.sqlitedb')
@@ -173,6 +183,7 @@ class AppPage(tk.Tk):
         self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
         self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
+    # run
     def run_cmd(self):
         for index, entity in enumerate(self.entities):
             if entity.checkbox_var.get() == "1":
@@ -187,7 +198,7 @@ class AppPage(tk.Tk):
                 print(test)
                 self.text_info_section['state'] = 'normal'
                 self.text_info_section.insert(tk.END, test)
-
+    # status
     def status_cmd(self):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
