@@ -2,6 +2,7 @@
     "id": 2,
     "name": "POSTGRESQL/PGADMIN",
     "description": "PostgreSQL is the database used for datawarehouse exercises. PgAdmin ia a web-based IDE for PostgreSQL.",
+    "imageName": ["y-pgadmin"],
     "runCmd": "todo",
     "stopCmd": "todo",
     "buildCmd": "todo",

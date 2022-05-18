@@ -32,7 +32,7 @@ import sqlite3
 import json
 import subprocess
 
-BLACK = "#000000"
+BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
 DARK_GREEN = "#047b80"
 VERY_DARK_GREEN = "#014145"
@@ -40,22 +40,6 @@ GREY = "#6b6a6a"
 DARK_GREY = "#545454"
 VERY_DARK_GREY = "#363535"
 
-class Entity():
-    def __init__(self, frame_checkbox, checkbox_var, label_name, 
-                    label_status, label_built, frame_button, obj):
-        self.frame_checkbox = frame_checkbox
-        self.checkbox_var = checkbox_var
-        self.label_name = label_name
-        self.label_status = label_status
-        self.label_built = label_built
-        self.frame_button = frame_button
-        
-        self.entity = obj
-
-
-        #self.build_cmd = build_cmd
-        # How to acces values:
-        # Lable : entity.label_name.get['text'] 
 
 class AppPage(tk.Tk):
     def __init__(self):
@@ -67,9 +51,9 @@ class AppPage(tk.Tk):
         self.eval('tk::PlaceWindow . center') #centers window on start.
         self.resizable(tk.FALSE, tk.FALSE)
         # configure the grid
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure([1,2], weight=8)
-        self.columnconfigure([3,4], weight=4)
+        self.columnconfigure(0, weight=1) # CHECKBOX
+        self.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        self.columnconfigure([3,4], weight=4) # BUILT | INFO
 
         # Styles
         # Style config
@@ -88,95 +72,80 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Entity.TLabel", foreground=WHITE, background=BLACK)
         self.style.configure("Entity.TButton", foreground=WHITE, background=VERY_DARK_GREY)
-
         self.style.map('Entity.TButton', background=[('active', DARK_GREY)],
+            indicatorcolor=[('selected', DARK_GREEN)])
+        # info textbox styles
+        self.style.configure("Info.TFrame", background=BLACK)
+        # scrollbar style
+        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, borderwidth=0.5)
+        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)],
+            indicatorcolor=[('selected', GREY)])
+        # button/cmd pane style
+        self.style.configure("Cmd.TFrame", background=BLACK)
+        self.style.configure("Cmd.TButton", foreground=WHITE, background=VERY_DARK_GREEN)
+        self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
         # Structure
         # Render order
         self.row_start_header = 0
         self.row_start_entities = 1
-        self.row_start_info_section = 2
+        self.row_start_info_section = 2 # this will be incremented by the entity loop.
         # Header
         self.create_header_section()
         # Entities
         self.entities = []
         self.create_entity_section()
-
-        #self.create_info_section()
-        #self.create_button_section()
+        # Info
+        self.create_info_section()
+        # Buttons
+        self.create_button_section()
         
-        
-
+    # Header
     def create_header_section(self):
         # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
         self.checkbox_header_var = tk.StringVar()
-        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var, style="Header.TCheckbutton")
+        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+                                        style="Header.TCheckbutton", command=self.toogle_checkboxes)
         self.checkbox_header.pack()
         # Name
-        self.lbl_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
-        self.lbl_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
+        self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+        self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.lbl_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
-        self.lbl_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
+        self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
         # Built
-        self.lbl_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
-        self.lbl_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
+        self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
-        self.lbl_header_info = ttk.Label(self, text=" INFO", style="Header.TLabel")
-        self.lbl_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+        self.label_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
+        self.label_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+    # checkbox function
+    def toogle_checkboxes(self):
+        if self.checkbox_header_var.get() == "1":
+            for entity in self.entities:
+                entity.checkbox_var.set("1")
+        else:
+            for entity in self.entities:
+                entity.checkbox_var.set("0")
 
-
+    # Entities
     def create_entity_section(self):
         # DB - sqlite
         con = sqlite3.connect('projecty.sqlitedb')
         cur = con.cursor()
         db_entities = []
-        for row in cur.execute("SELECT id, data FROM entities ORDER BY id DESC"):
+        for row in cur.execute("SELECT id, data FROM entities ORDER BY id ASC"):
             db_entities.append(json.loads(row[1]))
         cur.close()
         con.close()
         # self.entities - store
         for obj in db_entities:
-            # Checkbox
-            frame_checkbox = ttk.Frame(self, style="Entity.TFrame")
-            checkbox_var = tk.StringVar()
-            checkbox = ttk.Checkbutton(frame_checkbox, variable=checkbox_var, style="Entity.TCheckbutton")
-            checkbox.pack()
-            # Labels
-            label_name = ttk.Label(text=obj["name"], style="Entity.TLabel")
-            label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
-            label_built = ttk.Label(text=" ?", style="Entity.TLabel")
-
-            # Info button
-            
-            
-            frame_button = ttk.Frame(self, style="Entity.TFrame")
-            button = ttk.Button(frame_button, text="INFO", style="Entity.TButton", 
-                                command=lambda:lambda:print(obj['name']))
-            button.pack()
-
-
-            #Default param is an another way to catch a value:
-            #lst.append(lambda i=i: i)
-            #https://stackoverflow.com/questions/28014953/capturing-value-instead-of-reference-in-lambdas
-
-
-
             # Store objects in list
-            entity = Entity(frame_checkbox, checkbox_var, label_name, label_status, label_built, frame_button, obj)
+            entity = self.Entity(obj)
             self.entities.append(entity)
-
-            #checbox_var = tk.StringVar()
-            #checkbox = ttk.Checkbutton(self, variable=checbox_var)
-            
-            #lbl_name = ttk.Label(text=obj["name"])
-            #build_cmd = obj["buildCmd"]
-            #entity = Entity(frame_checkbox, checkbox_var, lbl_name, build_cmd)
-            #self.entities.append(entity)
-
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
             entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
@@ -187,31 +156,34 @@ class AppPage(tk.Tk):
             # Dynamically set the row that the info label can start on.
             self.row_start_info_section += 1
 
-        # test
-        #for entry in self.entities:
-            #print(entry.lbl_name["text"])
         
     def create_info_section(self):
         # Frame
-        self.frame_info_section = ttk.Frame(self)
-        self.frame_info_section.grid(column=0, row=4, columnspan=4)
+        self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
+        self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
-        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable")
+        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable", background=BLACK, foreground=WHITE,
+                                        highlightthickness=1, highlightbackground=VERY_DARK_GREY)
         self.text_info_section.pack(side='left')
         # Scrollbar
-        self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, orient='vertical', command=self.text_info_section.yview)
+        self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, style="Vertical.TScrollbar", orient='vertical', command=self.text_info_section.yview)
         self.text_info_scrollbar.pack(side='right', fill='both')
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
 
     def create_button_section(self):
         # Frame
-        self.frame_button_section = ttk.Frame(self)
-        self.frame_button_section.grid(column=0, row=5, columnspan=3, sticky="e")
-        # RUN - button
-        self.button_run = ttk.Button(self.frame_button_section, text="RUN", command=self.run_cmd)
-        self.button_run.pack(side='right', padx=4, pady=4)
-    
+        self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
+        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        # Buttons
+        # Run
+        self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
+        self.button_run.pack(side='right', padx=(0,4), pady=4)
+        # Status
+        self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
+        self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
+    # Commands
+    # run
     def run_cmd(self):
         for index, entity in enumerate(self.entities):
             if entity.checkbox_var.get() == "1":
@@ -226,7 +198,59 @@ class AppPage(tk.Tk):
                 print(test)
                 self.text_info_section['state'] = 'normal'
                 self.text_info_section.insert(tk.END, test)
-  
+    # status
+    def status_cmd(self):
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1":
+                print("checked!")
+                #self.text_info_section['state'] = 'normal'
+                #self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
+                #self.text_info_section['state'] = 'disable'
+                #self.text_info_section.see("end") # autoscroll
+                ## test
+                #print("---")
+                #print(entity.build_cmd)
+                #test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
+                #print(test)
+                #self.text_info_section['state'] = 'normal'
+                #self.text_info_section.insert(tk.END, test)
+    
+
+    class Entity():
+        def __init__(self, docker_resource):
+            # object values
+            self.entity = docker_resource
+            # checkbox
+            self.frame_checkbox = ttk.Frame(style="Entity.TFrame")
+            self.checkbox_var = tk.StringVar()
+            self.checkbox = ttk.Checkbutton(self.frame_checkbox, variable=self.checkbox_var, style="Entity.TCheckbutton")
+            self.checkbox.pack()
+            # labels
+            self.label_name = ttk.Label(text=self.entity["name"], style="Entity.TLabel")
+            self.label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
+            self.label_built = ttk.Label(text=" ?", style="Entity.TLabel")
+            # button
+            self.frame_button = ttk.Frame(style="Entity.TFrame")
+            self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
+                                command=self.show_info_message
+                                )
+            self.button.pack(side='right')
+        # Methods
+        def show_info_message(self):
+            title = self.entity['name']
+            message = self.entity['description'] + "\n\n"
+            message = message + "Access: \n"
+            for dictionary in self.entity['access']:
+                for key,value in dictionary.items():
+                    message = message + "\u2022 " + key + " - " + value + "\n"
+            message = message + "\n" + "Additional Information: " + "\n"
+            for item in self.entity['additionalInformation']:
+                if item == "None":
+                    message = message + "None"
+                    break
+                else:
+                    message = message + "\u2022 " + item + "\n"
+            showinfo(title=title,message=message)
 
 
 if __name__ == "__main__":

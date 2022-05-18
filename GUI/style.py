@@ -46,4 +46,4 @@ stylename_elements_options('Vertical.TScrollbar')
     Use the Style.lookup() method to get the attributes of an element option.
 '''
 
-
+# https://stackoverflow.com/questions/28375591/changing-the-appearance-of-a-scrollbar-in-tkinter-using-ttk-styles

@@ -77,8 +77,8 @@ class AppPage(tk.Tk):
         # info textbox styles
         self.style.configure("Info.TFrame", background=BLACK)
         # scrollbar style
-        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, borderwidth=0.5)
-        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)],
+        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, troughcolor=VERY_DARK_GREY, arrowcolor=WHITE, borderwidth=0.5)
+        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)], troughcolor=[('active', VERY_DARK_GREY)], arrowcolor=[('active', BLACK)],
             indicatorcolor=[('selected', GREY)])
         # button/cmd pane style
         self.style.configure("Cmd.TFrame", background=BLACK)
@@ -162,7 +162,7 @@ class AppPage(tk.Tk):
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
         self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
-        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable", background=BLACK, foreground=WHITE,
+        self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
                                         highlightthickness=1, highlightbackground=VERY_DARK_GREY)
         self.text_info_section.pack(side='left')
         # Scrollbar
@@ -170,6 +170,14 @@ class AppPage(tk.Tk):
         self.text_info_scrollbar.pack(side='right', fill='both')
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
+    # Helper functions to display text to the info section.
+    # display
+    def display_text(self, message):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.insert(tk.END, message + " \n")
+        self.text_info_section['state'] = 'disable'
+        self.text_info_section.see("end") # autoscroll
+
 
     def create_button_section(self):
         # Frame
@@ -200,9 +208,28 @@ class AppPage(tk.Tk):
                 self.text_info_section.insert(tk.END, test)
     # status
     def status_cmd(self):
+        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read())
+        checked_entities = 0
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
-                print("checked!")
+                checked_entities += 1
+                self.display_text("Checking build status for: " + entity.entity['name'])
+                built = True # Not guilty until otherwise proven.
+                for name in entity.entity['imageName']:
+                    if stdout_image_ls.rfind(name) != -1:
+                        self.display_text(" * " + name + " - OK")
+                        continue
+                    else:
+                        self.display_text(" * " + name + " - NOT OK")
+                        built = False
+                if built:
+                    entity.label_built.config(text = "YES")
+                else:
+                    entity.label_built.config(text = "NO")
+        if checked_entities == 0:
+            self.display_text("Check the checkboxes for the entities you want to display the status for.")
+
+
                 #self.text_info_section['state'] = 'normal'
                 #self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
                 #self.text_info_section['state'] = 'disable'
@@ -266,3 +293,4 @@ if __name__ == "__main__":
 # https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-map.html
 
 # http://www.tcl.tk/scripting/index.tml
+
