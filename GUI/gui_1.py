@@ -163,7 +163,7 @@ class AppPage(tk.Tk):
             # Dynamically set the row that the info label can start on.
             self.row_start_info_section += 1
 
-        
+    # Info box
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
@@ -199,8 +199,7 @@ class AppPage(tk.Tk):
             self.text_info_section.config(cursor="xterm")
         self.update() # Force update so the cursor change don't wait for another event.
 
-        
-
+    # Button Section
     def create_button_section(self):
         # Frame
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
@@ -226,11 +225,14 @@ class AppPage(tk.Tk):
     # status
     def status_cmd(self):
         self.cursor_watch(True)
-        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read())
+        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker images.
+        stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
+        print(str(stdout_process_status))
         checked_entities = 0
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 checked_entities += 1
+                # build status
                 self.display_text("Checking build status for: " + entity.entity['name'])
                 built = True # Not guilty until otherwise proven.
                 for name in entity.entity['imageName']:
@@ -241,12 +243,29 @@ class AppPage(tk.Tk):
                         self.display_text(" * " + name + " - NOT OK")
                         built = False
                 if built:
-                    entity.label_built.config(text = "YES")
+                    entity.label_built.config(text = " YES")
                 else:
-                    entity.label_built.config(text = "NO")
+                    entity.label_built.config(text = " NO")
+                # running status
+                if built:
+                    self.display_text("Checking run status for: " + entity.entity['name'])
+                    running = True # Not guilty until otherwise proven.
+                    for name in entity.entity['imageName']:
+                        if stdout_process_status.rfind(name) != -1:
+                            self.display_text(" * " + name + " - RUNNING")
+                            continue
+                        else:
+                            self.display_text(" * " + name + " - STOPPED")
+                            running = False
+                    if running:
+                        entity.label_status.config(text = " RUNNING")
+                    else:
+                        entity.label_status.config(text = " STOPPED")
+        # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
         self.cursor_watch(False)
+    # #
 
 
                 #self.text_info_section['state'] = 'normal'
@@ -296,8 +315,7 @@ class AppPage(tk.Tk):
                     break
                 else:
                     message = message + "\u2022 " + item + "\n"
-            showinfo(title=title,message=message)
-
+            showinfo(title=title,message=message) # global tk function.
 
 if __name__ == "__main__":
     app = AppPage()
@@ -314,3 +332,8 @@ if __name__ == "__main__":
 # http://www.tcl.tk/scripting/index.tml
 
 # THIS! : https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html
+
+# docker run -p 80:80 --name y-nginx --rm -d y-nginx
+# docker stop y-nginx
+
+# TODO: network
