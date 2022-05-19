@@ -192,12 +192,12 @@ class AppPage(tk.Tk):
     # cursor watch/wait
     def cursor_watch(self, watch):
         if watch:
-            print("should have watch now:")
-            #self.config(cursor="watch")
-            #self.text_info_section.config(cursor="watch")
+            self.config(cursor="watch")
+            self.text_info_section.config(cursor="watch")
         else:
             self.config(cursor="")
             self.text_info_section.config(cursor="xterm")
+        self.update() # Force update so the cursor change don't wait for another event.
 
         
 
@@ -213,23 +213,19 @@ class AppPage(tk.Tk):
         self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
         self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
-    # run
+    # build
     def build_cmd(self):
-        #self.cursor_watch(True)
-        print("test")
-        self.config(cursor="watch")
-        self.update()
-        print("...")
-        time.sleep(4)
-        print("end test")
+        self.cursor_watch(True)
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Building: " + entity.entity['name'])
                 stdout_build = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
                 self.display_raw_text(stdout_build)
-        #self.cursor_watch(False)
+        self.status_cmd()
+        self.cursor_watch(False)
     # status
     def status_cmd(self):
+        self.cursor_watch(True)
         stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read())
         checked_entities = 0
         for entity in self.entities:
@@ -250,6 +246,7 @@ class AppPage(tk.Tk):
                     entity.label_built.config(text = "NO")
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
+        self.cursor_watch(False)
 
 
                 #self.text_info_section['state'] = 'normal'
