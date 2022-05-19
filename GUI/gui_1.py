@@ -31,6 +31,7 @@ from tkinter.messagebox import showerror, showwarning, showinfo
 import sqlite3
 import json
 import subprocess
+import time
 
 BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
@@ -86,6 +87,12 @@ class AppPage(tk.Tk):
         self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
+        #print("test")
+        #self.config(cursor="watch")
+        ##time.sleep(4)
+        #print("end test")
+
+        
         # Structure
         # Render order
         self.row_start_header = 0
@@ -170,42 +177,57 @@ class AppPage(tk.Tk):
         self.text_info_scrollbar.pack(side='right', fill='both')
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
-    # Helper functions to display text to the info section.
+    # Helper functions to give feedback to the user:
     # display
     def display_text(self, message):
         self.text_info_section['state'] = 'normal'
         self.text_info_section.insert(tk.END, message + " \n")
         self.text_info_section['state'] = 'disable'
         self.text_info_section.see("end") # autoscroll
+    def display_raw_text(self, message):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.insert(tk.END, message)
+        self.text_info_section['state'] = 'disable'
+        self.text_info_section.see("end") # autoscroll
+    # cursor watch/wait
+    def cursor_watch(self, watch):
+        if watch:
+            print("should have watch now:")
+            #self.config(cursor="watch")
+            #self.text_info_section.config(cursor="watch")
+        else:
+            self.config(cursor="")
+            self.text_info_section.config(cursor="xterm")
 
+        
 
     def create_button_section(self):
         # Frame
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
         self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
         # Buttons
-        # Run
-        self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
-        self.button_run.pack(side='right', padx=(0,4), pady=4)
-        # Status
+        # build
+        self.button_build = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="BUILD", command=self.build_cmd)
+        self.button_build.pack(side='right', padx=(0,4), pady=4)
+        # status
         self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
         self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
     # run
-    def run_cmd(self):
-        for index, entity in enumerate(self.entities):
+    def build_cmd(self):
+        #self.cursor_watch(True)
+        print("test")
+        self.config(cursor="watch")
+        self.update()
+        print("...")
+        time.sleep(4)
+        print("end test")
+        for entity in self.entities:
             if entity.checkbox_var.get() == "1":
-                self.text_info_section['state'] = 'normal'
-                self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
-                self.text_info_section['state'] = 'disable'
-                self.text_info_section.see("end") # autoscroll
-                # test
-                print("---")
-                print(entity.build_cmd)
-                test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
-                print(test)
-                self.text_info_section['state'] = 'normal'
-                self.text_info_section.insert(tk.END, test)
+                self.display_text("Building: " + entity.entity['name'])
+                stdout_build = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                self.display_raw_text(stdout_build)
+        #self.cursor_watch(False)
     # status
     def status_cmd(self):
         stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read())
@@ -294,3 +316,4 @@ if __name__ == "__main__":
 
 # http://www.tcl.tk/scripting/index.tml
 
+# THIS! : https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html
