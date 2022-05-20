@@ -189,6 +189,10 @@ class AppPage(tk.Tk):
         self.text_info_section.insert(tk.END, message)
         self.text_info_section['state'] = 'disable'
         self.text_info_section.see("end") # autoscroll
+    def clear_text(self):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.delete(1.0, tk.END)
+        self.text_info_section['state'] = 'disable'
     # cursor watch/wait
     def cursor_watch(self, watch):
         if watch:
@@ -211,6 +215,9 @@ class AppPage(tk.Tk):
         # status
         self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
         self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
+        # status
+        self.button_clear = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="CLEAR", command=self.clear_cmd)
+        self.button_clear.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
     # build
     def build_cmd(self):
@@ -227,7 +234,6 @@ class AppPage(tk.Tk):
         self.cursor_watch(True)
         stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker images.
         stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
-        print(str(stdout_process_status))
         checked_entities = 0
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
@@ -265,7 +271,14 @@ class AppPage(tk.Tk):
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
         self.cursor_watch(False)
-    # #
+    # clear
+    def clear_cmd(self):
+        # clear checkboxes
+        self.checkbox_header_var.set("0")
+        for entity in self.entities:
+            entity.checkbox_var.set("0")
+        # clear info box
+        self.clear_text()
 
 
                 #self.text_info_section['state'] = 'normal'
@@ -335,5 +348,7 @@ if __name__ == "__main__":
 
 # docker run -p 80:80 --name y-nginx --rm -d y-nginx
 # docker stop y-nginx
+
+# https://dafarry.github.io/tkinterbook/
 
 # TODO: network
