@@ -121,10 +121,10 @@ class AppPage(tk.Tk):
         self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
         self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.label_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
+        self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
         self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
         # Built
-        self.label_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
+        self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
         self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
         self.label_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
@@ -209,6 +209,12 @@ class AppPage(tk.Tk):
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
         self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
         # Buttons
+        # run
+        self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
+        self.button_run.pack(side='right', padx=(0,4), pady=4)
+        # stop
+        self.button_stop = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STOP", command=self.stop_cmd)
+        self.button_stop.pack(side='right', padx=(0,4), pady=4)
         # build
         self.button_build = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="BUILD", command=self.build_cmd)
         self.button_build.pack(side='right', padx=(0,4), pady=4)
@@ -219,6 +225,30 @@ class AppPage(tk.Tk):
         self.button_clear = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="CLEAR", command=self.clear_cmd)
         self.button_clear.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
+    # run
+    def run_cmd(self):
+        self.cursor_watch(True)
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "STOPPED":
+                self.display_text("Running: " + entity.entity['name'])
+                stdout_build = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                self.display_raw_text(stdout_build)
+                self.status_cmd()
+            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "STOPPED":
+                self.display_text(entity.entity['name'] + " is already running.")
+        self.cursor_watch(False)
+    # stop
+    def stop_cmd(self):
+        self.cursor_watch(True)
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "RUNNING":
+                self.display_text("Stopping: " + entity.entity['name'])
+                stdout_build = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                self.display_raw_text(stdout_build)
+                self.status_cmd()
+            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "RUNNING":
+                self.display_text(entity.entity['name'] + " is not running.")
+        self.cursor_watch(False)
     # build
     def build_cmd(self):
         self.cursor_watch(True)
@@ -249,9 +279,9 @@ class AppPage(tk.Tk):
                         self.display_text(" * " + name + " - NOT OK")
                         built = False
                 if built:
-                    entity.label_built.config(text = " YES")
+                    entity.label_built.config(text = "YES")
                 else:
-                    entity.label_built.config(text = " NO")
+                    entity.label_built.config(text = "NO")
                 # running status
                 if built:
                     self.display_text("Checking run status for: " + entity.entity['name'])
@@ -264,9 +294,9 @@ class AppPage(tk.Tk):
                             self.display_text(" * " + name + " - STOPPED")
                             running = False
                     if running:
-                        entity.label_status.config(text = " RUNNING")
+                        entity.label_status.config(text = "RUNNING")
                     else:
-                        entity.label_status.config(text = " STOPPED")
+                        entity.label_status.config(text = "STOPPED")
         # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
@@ -305,8 +335,8 @@ class AppPage(tk.Tk):
             self.checkbox.pack()
             # labels
             self.label_name = ttk.Label(text=self.entity["name"], style="Entity.TLabel")
-            self.label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
-            self.label_built = ttk.Label(text=" ?", style="Entity.TLabel")
+            self.label_status = ttk.Label(text="UNKNOWN", style="Entity.TLabel")
+            self.label_built = ttk.Label(text="?", style="Entity.TLabel")
             # button
             self.frame_button = ttk.Frame(style="Entity.TFrame")
             self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
@@ -346,9 +376,12 @@ if __name__ == "__main__":
 
 # THIS! : https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html
 
-# docker run -p 80:80 --name y-nginx --rm -d y-nginx
+# docker network create -d bridge y-net
+# docker run -p 80:80 --network=y-net --name y-nginx --rm -d y-nginx
 # docker stop y-nginx
 
 # https://dafarry.github.io/tkinterbook/
 
 # TODO: network
+# docker network create -d bridge y-net
+# seperate build and run status checks
