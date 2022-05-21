@@ -1,0 +1,22 @@
+---
+version: "3"
+services:
+  z-pgadmin:
+    build: ./Z-Images/Z-Pgadmin
+    image: z-pgadmin
+    networks:
+      - y-net
+    ports:
+      - 8003:80
+    env_file:
+      - Env/pgadmin-variables.env
+    volumes:
+      - project-y-pgadmin:/var/lib/pgadmin
+networks:
+  y-net:
+    name: z-net
+    driver: bridge
+volumes:
+  project-y-pgadmin:
+    driver: local
+

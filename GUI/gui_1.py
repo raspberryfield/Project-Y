@@ -383,3 +383,9 @@ if __name__ == "__main__":
 # TODO: network
 # docker network create -d bridge y-net
 # seperate build and run status checks
+# docker-compose -f y-compose-postgres-pgadmin.yaml up
+# example.com
+
+# Pre build:
+# docker network create -d bridge y-net
+# run ./ create env file script.

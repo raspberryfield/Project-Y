@@ -9,6 +9,8 @@ Pgadmin is a web-based IDE for postgres.
 ## Build command  
 `$ docker build -t z-pgadmin . ` 
 
+Note! If you change the values in the ENV file. You must re-build the image otherwise the changes won't take place. You might even need to remove the old volume.  
+
 ## Post-Build  
 > Warning: pgAdmin runs as the pgadmin user (UID: 5050) in the pgadmin group (GID: 5050) in the container. You must ensure that all files are readable, and where necessary (e.g. the working/session directory) writeable for this user on the host machine. For example: `sudo chown -R 5050:5050 <host_directory>`  
 
