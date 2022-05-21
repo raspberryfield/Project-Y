@@ -31,6 +31,7 @@ from tkinter.messagebox import showerror, showwarning, showinfo
 import sqlite3
 import json
 import subprocess
+import time
 
 BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
@@ -77,8 +78,8 @@ class AppPage(tk.Tk):
         # info textbox styles
         self.style.configure("Info.TFrame", background=BLACK)
         # scrollbar style
-        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, borderwidth=0.5)
-        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)],
+        self.style.configure("Vertical.TScrollbar", background=VERY_DARK_GREY, troughcolor=VERY_DARK_GREY, arrowcolor=WHITE, borderwidth=0.5)
+        self.style.map("Vertical.TScrollbar", background=[('active', DARK_GREY)], troughcolor=[('active', VERY_DARK_GREY)], arrowcolor=[('active', WHITE)],
             indicatorcolor=[('selected', GREY)])
         # button/cmd pane style
         self.style.configure("Cmd.TFrame", background=BLACK)
@@ -86,6 +87,12 @@ class AppPage(tk.Tk):
         self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
+        #print("test")
+        #self.config(cursor="watch")
+        ##time.sleep(4)
+        #print("end test")
+
+        
         # Structure
         # Render order
         self.row_start_header = 0
@@ -114,10 +121,10 @@ class AppPage(tk.Tk):
         self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
         self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.label_header_info = ttk.Label(self, text=" STATUS", style="Header.TLabel")
+        self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
         self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
         # Built
-        self.label_header_info = ttk.Label(self, text=" BUILT", style="Header.TLabel")
+        self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
         self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
         # Info
         self.label_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
@@ -156,13 +163,13 @@ class AppPage(tk.Tk):
             # Dynamically set the row that the info label can start on.
             self.row_start_info_section += 1
 
-        
+    # Info box
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
         self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
-        self.text_info_section = tk.Text(self.frame_info_section, height=4, state="disable", background=BLACK, foreground=WHITE,
+        self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
                                         highlightthickness=1, highlightbackground=VERY_DARK_GREY)
         self.text_info_section.pack(side='left')
         # Scrollbar
@@ -170,39 +177,146 @@ class AppPage(tk.Tk):
         self.text_info_scrollbar.pack(side='right', fill='both')
         #  communicate back to the scrollbar
         self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
+    # Helper functions to give feedback to the user:
+    # display
+    def display_text(self, message):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.insert(tk.END, message + " \n")
+        self.text_info_section['state'] = 'disable'
+        self.text_info_section.see("end") # autoscroll
+    def display_raw_text(self, message):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.insert(tk.END, message)
+        self.text_info_section['state'] = 'disable'
+        self.text_info_section.see("end") # autoscroll
+    def clear_text(self):
+        self.text_info_section['state'] = 'normal'
+        self.text_info_section.delete(1.0, tk.END)
+        self.text_info_section['state'] = 'disable'
+    # cursor watch/wait
+    def cursor_watch(self, watch):
+        if watch:
+            self.config(cursor="watch")
+            self.text_info_section.config(cursor="watch")
+        else:
+            self.config(cursor="")
+            self.text_info_section.config(cursor="xterm")
+        self.update() # Force update so the cursor change don't wait for another event.
 
+    # Button Section
     def create_button_section(self):
         # Frame
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
         self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
         # Buttons
-        # Run
+        # run
         self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
         self.button_run.pack(side='right', padx=(0,4), pady=4)
-        # Status
+        # stop
+        self.button_stop = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STOP", command=self.stop_cmd)
+        self.button_stop.pack(side='right', padx=(0,4), pady=4)
+        # build
+        self.button_build = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="BUILD", command=self.build_cmd)
+        self.button_build.pack(side='right', padx=(0,4), pady=4)
+        # status
         self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.status_cmd)
         self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
+        # status
+        self.button_clear = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="CLEAR", command=self.clear_cmd)
+        self.button_clear.pack(side='right', padx=(0,4), pady=(5,2))
     # Commands
     # run
     def run_cmd(self):
-        for index, entity in enumerate(self.entities):
-            if entity.checkbox_var.get() == "1":
-                self.text_info_section['state'] = 'normal'
-                self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
-                self.text_info_section['state'] = 'disable'
-                self.text_info_section.see("end") # autoscroll
-                # test
-                print("---")
-                print(entity.build_cmd)
-                test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
-                print(test)
-                self.text_info_section['state'] = 'normal'
-                self.text_info_section.insert(tk.END, test)
-    # status
-    def status_cmd(self):
+        self.cursor_watch(True)
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "STOPPED":
+                self.display_text("Running: " + entity.entity['name'])
+                stdout_build = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                self.display_raw_text(stdout_build)
+                self.status_cmd()
+            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "STOPPED":
+                self.display_text(entity.entity['name'] + " is already running.")
+        self.cursor_watch(False)
+    # stop
+    def stop_cmd(self):
+        self.cursor_watch(True)
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1": # and entity.label_status['text'] == "RUNNING":
+                self.display_text("Stopping: " + entity.entity['name'])
+
+
+                try:
+                    stdout_build = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                    self.display_raw_text(stdout_build)
+                    self.status_cmd()
+                except subprocess.CalledProcessError as e:
+                    print("test...")
+                    print(e.output)
+            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "RUNNING":
+                self.display_text(entity.entity['name'] + " is not running.")
+        self.cursor_watch(False)
+    # build
+    def build_cmd(self):
+        self.cursor_watch(True)
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
-                print("checked!")
+                self.display_text("Building: " + entity.entity['name'])
+                stdout_build = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
+                self.display_raw_text(stdout_build)
+        self.status_cmd()
+        self.cursor_watch(False)
+    # status
+    def status_cmd(self):
+        self.cursor_watch(True)
+        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker images.
+        stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
+        checked_entities = 0
+        for entity in self.entities:
+            if entity.checkbox_var.get() == "1":
+                checked_entities += 1
+                # build status
+                self.display_text("Checking build status for: " + entity.entity['name'])
+                built = True # Not guilty until otherwise proven.
+                for name in entity.entity['imageName']:
+                    if stdout_image_ls.rfind(name) != -1:
+                        self.display_text(" * " + name + " - OK")
+                        continue
+                    else:
+                        self.display_text(" * " + name + " - NOT OK")
+                        built = False
+                if built:
+                    entity.label_built.config(text = "YES")
+                else:
+                    entity.label_built.config(text = "NO")
+                # running status
+                if built:
+                    self.display_text("Checking run status for: " + entity.entity['name'])
+                    running = True # Not guilty until otherwise proven.
+                    for name in entity.entity['imageName']:
+                        if stdout_process_status.rfind(name) != -1:
+                            self.display_text(" * " + name + " - RUNNING")
+                            continue
+                        else:
+                            self.display_text(" * " + name + " - STOPPED")
+                            running = False
+                    if running:
+                        entity.label_status.config(text = "RUNNING")
+                    else:
+                        entity.label_status.config(text = "STOPPED")
+        # if nothing checked
+        if checked_entities == 0:
+            self.display_text("Check the checkboxes for the entities you want to display the status for.")
+        self.cursor_watch(False)
+    # clear
+    def clear_cmd(self):
+        # clear checkboxes
+        self.checkbox_header_var.set("0")
+        for entity in self.entities:
+            entity.checkbox_var.set("0")
+        # clear info box
+        self.clear_text()
+
+
                 #self.text_info_section['state'] = 'normal'
                 #self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
                 #self.text_info_section['state'] = 'disable'
@@ -227,8 +341,8 @@ class AppPage(tk.Tk):
             self.checkbox.pack()
             # labels
             self.label_name = ttk.Label(text=self.entity["name"], style="Entity.TLabel")
-            self.label_status = ttk.Label(text=" UNKNOWN", style="Entity.TLabel")
-            self.label_built = ttk.Label(text=" ?", style="Entity.TLabel")
+            self.label_status = ttk.Label(text="UNKNOWN", style="Entity.TLabel")
+            self.label_built = ttk.Label(text="?", style="Entity.TLabel")
             # button
             self.frame_button = ttk.Frame(style="Entity.TFrame")
             self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
@@ -250,8 +364,7 @@ class AppPage(tk.Tk):
                     break
                 else:
                     message = message + "\u2022 " + item + "\n"
-            showinfo(title=title,message=message)
-
+            showinfo(title=title,message=message) # global tk function.
 
 if __name__ == "__main__":
     app = AppPage()
@@ -266,3 +379,15 @@ if __name__ == "__main__":
 # https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-map.html
 
 # http://www.tcl.tk/scripting/index.tml
+
+# THIS! : https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html
+
+# docker network create -d bridge y-net
+# docker run -p 80:80 --network=y-net --name y-nginx --rm -d y-nginx
+# docker stop y-nginx
+
+# https://dafarry.github.io/tkinterbook/
+
+# TODO: network
+# docker network create -d bridge y-net
+# seperate build and run status checks

@@ -229,25 +229,27 @@ class AppPage(tk.Tk):
     def run_cmd(self):
         self.cursor_watch(True)
         for entity in self.entities:
-            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "STOPPED":
+            if entity.checkbox_var.get() == "1":
                 self.display_text("Running: " + entity.entity['name'])
-                stdout_build = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                self.display_raw_text(stdout_build)
+                process = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
                 self.status_cmd()
-            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "STOPPED":
-                self.display_text(entity.entity['name'] + " is already running.")
         self.cursor_watch(False)
     # stop
     def stop_cmd(self):
         self.cursor_watch(True)
         for entity in self.entities:
-            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "RUNNING":
+            if entity.checkbox_var.get() == "1":
                 self.display_text("Stopping: " + entity.entity['name'])
-                stdout_build = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                self.display_raw_text(stdout_build)
+                process = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
                 self.status_cmd()
-            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "RUNNING":
-                self.display_text(entity.entity['name'] + " is not running.")
         self.cursor_watch(False)
     # build
     def build_cmd(self):
