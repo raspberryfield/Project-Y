@@ -1,9 +1,9 @@
 ---
 version: "3"
 services:
-  z-pgadmin:
-    build: ./Z-Images/Z-Pgadmin
-    image: z-pgadmin
+  y-pgadmin:
+    build: ./Y-Images/Y-Pgadmin
+    image: y-pgadmin
     networks:
       - y-net
     ports:
@@ -14,9 +14,8 @@ services:
       - project-y-pgadmin:/var/lib/pgadmin
 networks:
   y-net:
-    name: z-net
-    driver: bridge
+    external:
+      name: y-net
 volumes:
   project-y-pgadmin:
     driver: local
-
