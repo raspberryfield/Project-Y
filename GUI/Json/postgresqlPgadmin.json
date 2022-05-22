@@ -3,9 +3,10 @@
     "name": "POSTGRESQL/PGADMIN",
     "description": "PostgreSQL is the database used for datawarehouse exercises. PgAdmin ia a web-based IDE for PostgreSQL.",
     "imageName": ["y-pgadmin"],
-    "runCmd": "todo",
-    "stopCmd": "todo",
-    "buildCmd": "todo",
-    "access": [{"pgadmin.local":"Webpage for pgAdmin."}],
-    "additionalInformation": ["This will be interestening."]
+    "runCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml up -d",
+    "stopCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml down",
+    "buildCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build",
+    "access": [{"localhost:8003":"Webpage for pgAdmin."},
+        {"pgadmin.local":"Webpage for pgAdmin."}],
+    "additionalInformation": ["See script for post build. Must give write access to volume for pgadmin."]
 }
