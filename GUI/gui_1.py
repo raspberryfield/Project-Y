@@ -257,8 +257,11 @@ class AppPage(tk.Tk):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Building: " + entity.entity['name'])
-                stdout_build = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                self.display_raw_text(stdout_build)
+                process = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
         self.status_cmd()
         self.cursor_watch(False)
     # status
@@ -279,11 +282,12 @@ class AppPage(tk.Tk):
         self.cursor_watch(False)
     # status - build check
     def status_build_check(self, entity):
-        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker images.
+        process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        stdout = str(process.stdout.read()) # search string
         self.display_text("Checking build status for: " + entity.entity['name'])
         built = True # Not guilty until otherwise proven.
         for name in entity.entity['imageName']:
-            if stdout_image_ls.rfind(name) != -1:
+            if stdout.rfind(name) != -1:
                 self.display_text(" * " + name + " - OK")
                 continue
             else:
@@ -391,5 +395,7 @@ if __name__ == "__main__":
 # docker network create -d bridge y-net
 # run ./ create env file script.
 
-# docker-compose -f y-compose-postgres-pgadmin.yaml build
-# docker-compose -f y-compose-postgres-pgadmin.yaml -d up
+# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build
+# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml -d up
+
+# https://stackoverflow.com/questions/18421757/live-output-from-subprocess-command

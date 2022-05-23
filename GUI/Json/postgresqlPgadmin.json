@@ -2,7 +2,7 @@
     "id": 2,
     "name": "POSTGRESQL/PGADMIN",
     "description": "PostgreSQL is the database used for datawarehouse exercises. PgAdmin ia a web-based IDE for PostgreSQL.",
-    "imageName": ["y-pgadmin"],
+    "imageName": ["y-pgadmin", "y-postgres"],
     "runCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml up -d",
     "stopCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml down",
     "buildCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build",

@@ -4,15 +4,15 @@ According to the official documentation, every script ending with .sh and .sql m
 ## Useful commands
 > Note! Run the *create-docker-env.sh* script in the **Env** folder before trying these commands.  
 
-Build the z-postgres image:  
-    `$ docker build -t z-postgres . `  
+Build the y-postgres image:  
+    `$ docker build -t y-postgres . `  
 
-Run this command and you will see two images created (postgres and z-postgres):  
+Run this command and you will see two images created (postgres and y-postgres):  
     `$ docker image ls`  
 One image is the official postgres docker image and the other one is the one produced by the build script that extends the official image.  
 
 Run the image (stand alone, no compose command involved):  
-    `$ docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env z-postgres`  
+    `$ docker run -p 5432:5432 --env-file ../../Env/postgres-variables.env y-postgres`  
 > Tip! add **-d** to make the image run in container in detached mode in your terminal.  
 
 Standard way of running the official image:  
@@ -20,7 +20,7 @@ Standard way of running the official image:
 > Tip! Use \ and enter to create a new line in terminal.  
 
 Connect interactively directly to the image:  
-`$ docker exec -it z-postgres /bin/sh`
+`$ docker exec -it y-postgres /bin/sh`
 
 Make sure that the container is running:  
     `$ docker container ls`  
