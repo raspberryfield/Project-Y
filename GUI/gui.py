@@ -229,31 +229,27 @@ class AppPage(tk.Tk):
     def run_cmd(self):
         self.cursor_watch(True)
         for entity in self.entities:
-            if entity.checkbox_var.get() == "1" and entity.label_status['text'] == "STOPPED":
+            if entity.checkbox_var.get() == "1":
                 self.display_text("Running: " + entity.entity['name'])
-                stdout_build = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                self.display_raw_text(stdout_build)
-                self.status_cmd()
-            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "STOPPED":
-                self.display_text(entity.entity['name'] + " is already running.")
+                process = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
+                self.status_running_check(entity)
         self.cursor_watch(False)
     # stop
     def stop_cmd(self):
         self.cursor_watch(True)
         for entity in self.entities:
-            if entity.checkbox_var.get() == "1": # and entity.label_status['text'] == "RUNNING":
+            if entity.checkbox_var.get() == "1":
                 self.display_text("Stopping: " + entity.entity['name'])
-
-
-                try:
-                    stdout_build = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                    self.display_raw_text(stdout_build)
-                    self.status_cmd()
-                except subprocess.CalledProcessError as e:
-                    print("test...")
-                    print(e.output)
-            elif entity.checkbox_var.get() == "1" and entity.label_status['text'] != "RUNNING":
-                self.display_text(entity.entity['name'] + " is not running.")
+                process = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
+                self.status_running_check(entity)
         self.cursor_watch(False)
     # build
     def build_cmd(self):
@@ -261,52 +257,66 @@ class AppPage(tk.Tk):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Building: " + entity.entity['name'])
-                stdout_build = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE).stdout.read())
-                self.display_raw_text(stdout_build)
+                process = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+                stdout = process.stdout.read()
+                stderr = process.stderr.read() # error output, there is also an option to get the error code.
+                self.display_raw_text(stderr)
+                self.display_raw_text(stdout)
         self.status_cmd()
         self.cursor_watch(False)
     # status
     def status_cmd(self):
         self.cursor_watch(True)
-        stdout_image_ls = str(subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker images.
-        stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
         checked_entities = 0
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 checked_entities += 1
                 # build status
-                self.display_text("Checking build status for: " + entity.entity['name'])
-                built = True # Not guilty until otherwise proven.
-                for name in entity.entity['imageName']:
-                    if stdout_image_ls.rfind(name) != -1:
-                        self.display_text(" * " + name + " - OK")
-                        continue
-                    else:
-                        self.display_text(" * " + name + " - NOT OK")
-                        built = False
-                if built:
-                    entity.label_built.config(text = "YES")
-                else:
-                    entity.label_built.config(text = "NO")
+                is_built = self.status_build_check(entity)
                 # running status
-                if built:
-                    self.display_text("Checking run status for: " + entity.entity['name'])
-                    running = True # Not guilty until otherwise proven.
-                    for name in entity.entity['imageName']:
-                        if stdout_process_status.rfind(name) != -1:
-                            self.display_text(" * " + name + " - RUNNING")
-                            continue
-                        else:
-                            self.display_text(" * " + name + " - STOPPED")
-                            running = False
-                    if running:
-                        entity.label_status.config(text = "RUNNING")
-                    else:
-                        entity.label_status.config(text = "STOPPED")
+                if is_built:
+                    self.status_running_check(entity)
         # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
         self.cursor_watch(False)
+    # status - build check
+    def status_build_check(self, entity):
+        process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        stdout = str(process.stdout.read()) # search string
+        self.display_text("Checking build status for: " + entity.entity['name'])
+        built = True # Not guilty until otherwise proven.
+        for name in entity.entity['imageName']:
+            if stdout.rfind(name) != -1:
+                self.display_text(" * " + name + " - OK")
+                continue
+            else:
+                self.display_text(" * " + name + " - NOT OK")
+                built = False
+        if built:
+            entity.label_built.config(text = "YES")
+            return True
+        else:
+            entity.label_built.config(text = "NO")
+            return False
+    # status - running check
+    def status_running_check(self, entity):
+        stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
+        self.display_text("Checking run status for: " + entity.entity['name'])
+        running = True # Not guilty until otherwise proven.
+        for name in entity.entity['imageName']:
+            if stdout_process_status.rfind(name) != -1:
+                self.display_text(" * " + name + " - RUNNING")
+                continue
+            else:
+                self.display_text(" * " + name + " - STOPPED")
+                running = False
+        if running:
+            entity.label_status.config(text = "RUNNING")
+            return True
+        else:
+            entity.label_status.config(text = "STOPPED")
+            return False
     # clear
     def clear_cmd(self):
         # clear checkboxes
@@ -315,20 +325,6 @@ class AppPage(tk.Tk):
             entity.checkbox_var.set("0")
         # clear info box
         self.clear_text()
-
-
-                #self.text_info_section['state'] = 'normal'
-                #self.text_info_section.insert(tk.END, entity.lbl_name['text'] + " \n")
-                #self.text_info_section['state'] = 'disable'
-                #self.text_info_section.see("end") # autoscroll
-                ## test
-                #print("---")
-                #print(entity.build_cmd)
-                #test = (subprocess.Popen(entity.build_cmd, shell=True, stdout=subprocess.PIPE).stdout.read())
-                #print(test)
-                #self.text_info_section['state'] = 'normal'
-                #self.text_info_section.insert(tk.END, test)
-    
 
     class Entity():
         def __init__(self, docker_resource):
@@ -391,3 +387,15 @@ if __name__ == "__main__":
 # TODO: network
 # docker network create -d bridge y-net
 # seperate build and run status checks
+# docker-compose -f y-compose-postgres-pgadmin.yaml up
+# example.com
+# external network
+
+# Pre build:
+# docker network create -d bridge y-net
+# run ./ create env file script.
+
+# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build
+# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml -d up
+
+# https://stackoverflow.com/questions/18421757/live-output-from-subprocess-command

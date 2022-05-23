@@ -193,6 +193,15 @@ class AppPage(tk.Tk):
         self.text_info_section['state'] = 'normal'
         self.text_info_section.delete(1.0, tk.END)
         self.text_info_section['state'] = 'disable'
+    def stream_text_sdtout(self, cmd):
+        # https://stackoverflow.com/questions/18421757/live-output-from-subprocess-command
+        process = (subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        for c in iter(lambda: process.stdout.read(True), b""):
+            self.display_raw_text(c)
+            self.update()
+        for c in iter(lambda: process.stderr.read(True), b""):
+            self.display_raw_text(c)
+            self.update()
     # cursor watch/wait
     def cursor_watch(self, watch):
         if watch:
@@ -231,11 +240,7 @@ class AppPage(tk.Tk):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Running: " + entity.entity['name'])
-                process = (subprocess.Popen(entity.entity['runCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
-                stdout = process.stdout.read()
-                stderr = process.stderr.read() # error output, there is also an option to get the error code.
-                self.display_raw_text(stderr)
-                self.display_raw_text(stdout)
+                self.stream_text_sdtout(entity.entity['runCmd'])
                 self.status_running_check(entity)
         self.cursor_watch(False)
     # stop
@@ -244,11 +249,7 @@ class AppPage(tk.Tk):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Stopping: " + entity.entity['name'])
-                process = (subprocess.Popen(entity.entity['stopCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
-                stdout = process.stdout.read()
-                stderr = process.stderr.read() # error output, there is also an option to get the error code.
-                self.display_raw_text(stderr)
-                self.display_raw_text(stdout)
+                self.stream_text_sdtout(entity.entity['stopCmd'])
                 self.status_running_check(entity)
         self.cursor_watch(False)
     # build
@@ -257,13 +258,9 @@ class AppPage(tk.Tk):
         for entity in self.entities:
             if entity.checkbox_var.get() == "1":
                 self.display_text("Building: " + entity.entity['name'])
-                process = (subprocess.Popen(entity.entity['buildCmd'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
-                stdout = process.stdout.read()
-                stderr = process.stderr.read() # error output, there is also an option to get the error code.
-                self.display_raw_text(stderr)
-                self.display_raw_text(stdout)
+                self.stream_text_sdtout(entity.entity['buildCmd'])
         self.status_cmd()
-        self.cursor_watch(False)
+        self.cursor_watch(False) 
     # status
     def status_cmd(self):
         self.cursor_watch(True)
