@@ -1,10 +1,14 @@
 {
     "id": 1,
     "name": "NGINX",
-    "description": "Reverse proxy for Project-Y. Used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
-    "runCmd": "docker ",
-    "stopCmd": "todo",
-    "buildCmd": "todo",
-    "access": ["localhost", "nginx.local"],
-    "tags": ["ALL", "DW"]
+    "description": "Nginx is a reverse proxy for Project-Y. It's used to create server blocks (virtual servers). If Nginx is down, you must access each resource in the format 'localhost:<port#>'.",
+    "imageName": ["y-nginx"],
+    "runCmd": "docker run -p 80:80 --network=y-net --name y-nginx --rm -d y-nginx",
+    "stopCmd": "docker stop y-nginx",
+    "buildCmd": "docker build -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",
+    "access": [{"127.0.0.1": "localhost defaults to nginx start page."},
+        {"localhost":"Localhost defaults to localhost:80 in browser. Also Nginx start page."},
+        {"nginx.local" : "Nginx start page."},
+        {"nginx-static.local" : "Static webpage example hosted by Nginx."}],
+    "additionalInformation": ["None"]
 }

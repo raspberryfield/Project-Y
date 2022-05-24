@@ -1,10 +1,13 @@
 {
     "id": 2,
     "name": "POSTGRESQL/PGADMIN",
-    "description": "PostgreSQL is the database used for datawarehouse exercises. The IDE is a web-based tool called pgAdmin.",
-    "runCmd": "todo",
-    "stopCmd": "todo",
-    "buildCmd": "todo",
-    "access": ["localhost", "pgadmin.local"],
-    "tags": ["ALL", "DW"]
+    "description": "PostgreSQL is the database used for datawarehouse exercises. PgAdmin ia a web-based IDE for PostgreSQL.",
+    "imageName": ["y-pgadmin", "y-postgres"],
+    "runCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml up -d",
+    "stopCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml down",
+    "buildCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build",
+    "access": [{"localhost:8003":"Webpage for pgAdmin."},
+        {"pgadmin.local":"Webpage for pgAdmin."},
+        {"localhost:5432": "endpoint PostgreSQL"}],
+    "additionalInformation": ["See script for post build. Must give write access to volume for pgadmin."]
 }

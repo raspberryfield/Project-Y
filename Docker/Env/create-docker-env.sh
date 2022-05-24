@@ -26,7 +26,7 @@ elif [[ $1 == "--help" ]] || [[ $1 == "-h" ]]
  then
   echo "[HELP]"
   # echo -e enables to use \n and other special commands.
-  echo "Usage: $0 -u <my@email.com> -p <my_password> [-o]"
+  echo "Usage: $0 -u <my@example.com> -p <my_password> [-o]"
   echo "Description: Creates docker environment files locally with user and password from this script."
   echo "-u, --user: Specify username (a valid email address)."
   echo "-p, --password: Your secret password."
