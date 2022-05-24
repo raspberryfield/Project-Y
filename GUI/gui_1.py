@@ -1,29 +1,12 @@
-#import tkinter as tk
-#
-#window = tk.Tk()
-#
-#frame1 = tk.Frame(master=window, height=100, bg="red")
-#frame1.pack(fill=tk.X)
-#
-#label = tk.Label(master=frame1, text="hello world!")
-#label.pack()
-#
-#
-#frame2 = tk.Frame(master=window, height=50, bg="yellow")
-#frame2.pack(fill=tk.X)
-##
-##frame3 = tk.Frame(master=window, height=25, bg="blue")
-##frame3.pack(fill=tk.X)
-#
-#window.mainloop()
-
-# https://stackoverflow.com/questions/50422735/tkinter-resize-frame-and-contents-with-main-window
-# https://stackoverflow.com/questions/6129899/python-multiple-frames-with-grid-manager
-# https://medium.datadriveninvestor.com/how-to-create-structure-a-complex-tkinter-application-2022-26e4a9907a6d
-
-# https://stackoverflow.com/questions/17466561/best-way-to-structure-a-tkinter-application
-# https://pythonprogramming.net/change-show-new-frame-tkinter/
-# https://www.pythontutorial.net/tkinter/tkinter-grid/
+# Articles/videos that I read/watch to learn tkinter:
+# https://www.youtube.com/playlist?list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk (good video series)
+# https://pythonprogramming.net/change-show-new-frame-tkinter/ (new window)
+# https://www.pythontutorial.net/tkinter/tkinter-hello-world/ (best beginner to intermideate resource)
+# https://docs.python.org/3/library/tk.html (python official? don't cover evereything thou)
+# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-map.html (very good semi-official docs.)
+# http://www.tcl.tk/scripting/index.tml (tcl/tk documentation, underlying libraries of tkinter.)
+# https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html (explains the event loop!)
+# https://dafarry.github.io/tkinterbook/ (didn't use it much, but could be good resource.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -87,12 +70,6 @@ class AppPage(tk.Tk):
         self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
-        #print("test")
-        #self.config(cursor="watch")
-        ##time.sleep(4)
-        #print("end test")
-
-        
         # Structure
         # Render order
         self.row_start_header = 0
@@ -363,36 +340,6 @@ if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
 
-# Executing shell commands: https://stackoverflow.com/questions/89228/how-do-i-execute-a-program-or-call-a-system-command
-# Tkinter tutorial, very good: https://www.pythontutorial.net/tkinter/tkinter-hello-world/
-
-# https://docs.python.org/3/library/tk.html
-# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/checkbutton.html
-# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-Checkbutton.html
-# https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-map.html
-
-# http://www.tcl.tk/scripting/index.tml
-
-# THIS! : https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html
-
-# docker network create -d bridge y-net
-# docker run -p 80:80 --network=y-net --name y-nginx --rm -d y-nginx
-# docker stop y-nginx
-
-# https://dafarry.github.io/tkinterbook/
-
-# TODO: network
-# docker network create -d bridge y-net
-# seperate build and run status checks
-# docker-compose -f y-compose-postgres-pgadmin.yaml up
-# example.com
-# external network
-
-# Pre build:
-# docker network create -d bridge y-net
-# run ./ create env file script.
-
-# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build
-# docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml -d up
-
-# https://stackoverflow.com/questions/18421757/live-output-from-subprocess-command
+# TODO:
+#
+#
