@@ -7,6 +7,7 @@
     "stopCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml down",
     "buildCmd": "docker-compose -f ../Docker/y-compose-postgres-pgadmin.yaml build",
     "access": [{"localhost:8003":"Webpage for pgAdmin."},
-        {"pgadmin.local":"Webpage for pgAdmin."}],
+        {"pgadmin.local":"Webpage for pgAdmin."},
+        {"localhost:5432": "endpoint PostgreSQL"}],
     "additionalInformation": ["See script for post build. Must give write access to volume for pgadmin."]
 }

@@ -339,7 +339,3 @@ class AppPage(tk.Tk):
 if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
-
-# TODO:
-#
-#
