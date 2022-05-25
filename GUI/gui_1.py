@@ -38,9 +38,7 @@ class AppPage(tk.Tk):
         self.resizable(tk.FALSE, tk.FALSE)
         
         # configure the grid
-        self.columnconfigure(0, weight=1) # CHECKBOX
-        #self.columnconfigure([1,2], weight=8) # TEXT | STATUS
-        #self.columnconfigure([3,4], weight=4) # BUILT | INFO
+        self.columnconfigure(0, weight=1) #Everything is treated as it exists in one column. Except for the selection section that has its own grid.
 
         # Styles
         # Style config
@@ -53,9 +51,6 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Header.TLabel", foreground=WHITE, background=VERY_DARK_GREEN)
         # entity styles
-        self.style.configure("Test.TFrame", background="blue") # TODO: remove
-        self.style.configure("Test2.TFrame", background="green")# TODO: remove
-
         self.style.configure("Entity.TFrame", background=BLACK)
         self.style.configure("Entity.TCheckbutton", background=BLACK, indicatorcolor=WHITE)
         self.style.map('Entity.TCheckbutton', background=[('active', DARK_GREY)],
@@ -76,37 +71,156 @@ class AppPage(tk.Tk):
         self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
-        # Objects
-        #self.entities = [] # Most is based on direct access to this list of entities.
-
         # Structure
         # render order
         self.row_start_header = 0
         self.row_start_selection = 1
-        self.row_start_info_section = 2 # this will be incremented by the entity loop. TODO: maybe not!
+        self.row_start_info_section = 2
+        self.row_start_action_section = 3
         # Sections
         # header
-        header = self.Header()
-        header.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        self.create_header_section()
         # selection
+        self.entities = []
+        self.create_selection_section()
+        # info
+        self.create_info_section()
+        # action / buttons
+        self.create_action_section()
+
+
+
+
+        # Draw (place, pack or grid)
+        # Info:
+        '''
+        The text widget is using the default width. Which works fine as a width for this application. However, the widget is behaving in kind of
+        canonical way. It pushes the main window to fit itself. Some frames have problem to dynamically adapt to this behaviour. Since it behaves 
+        like a 'master' let's start with it, So we get the full width window immediately.
+        '''
+        self.frame_info_section.grid(row=self.row_start_info_section, column=0)
+        self.update() # Force update so info box is drawn so we get the correct window width.
+        # Selection:
+        '''
+        The selection section is a frame with a scrollable canvas and its own grid. It's hard to make it fit the width dynamically.
+        The solution is to pass in the root windows width after the largest widget (text box) is drawn.
+        '''
+        self.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="NSEW")
+        self.draw_entities(self.winfo_width())
+
+        # Header
+        self.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        
+        # Action/Buttons
+        '''
+        Everything must be drawn before the action section because the commands here uses all objects in the application.
+        '''
+        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+
+        #self.draw_entities()
+        # info
+
+
+
+
+    def create_header_section(self):
+        # Frame
+        self.frame_header = ttk.Frame(self, height=25, style="Header.TFrame")
+        #self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+        ## Checkbox
+        #self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
+        #self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
+        #self.checkbox_header_var = tk.StringVar()
+        #self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+        #                                style="Header.TCheckbutton", command=self.toogle_checkboxes)
+        #self.checkbox_header.pack()
+        ## Name
+        #self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+        ## Status
+        #self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
+        ## Built
+        #self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
+        ## Info
+        #self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
+        #self.label_header_info.place(x=550, y=0)
+
+    def create_selection_section(self):
+        # Frame
+        self.frame_entity_section = ttk.Frame(self, style="Test.TFrame") # TODO: change style here?
+        # Canvas (only text and canvas widgets are scrollable) https://www.youtube.com/watch?v=VmlgrrXAqb4
+        self.canvas_entities = tk.Canvas(self.frame_entity_section, height=40, bg=BLACK, highlightbackground=VERY_DARK_GREY)
+        self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
+        # Scrollbar
+        self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
+        self.scrollbar_entities.pack(side='right', fill='both')
+        self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+        # Bind
+        self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
+        # Create a frame to contain the entities
+        self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
+        #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
+        # Configuration of the grid
+        self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        # Populate list with entities
+        # db-sqlite - get entities
+        con = sqlite3.connect('projecty.sqlitedb')
+        cur = con.cursor()
+        db_entities = []
+        for row in cur.execute("SELECT id, data FROM entities ORDER BY id ASC"):
+            db_entities.append(json.loads(row[1]))
+        cur.close()
+        con.close()
+        # self.entities - store
+        for obj in db_entities:
+            # Store objects in list
+            entity = self.Entity(obj, self.frame_canvas)
+            self.entities.append(entity)   
+    def draw_entities(self, window_width):
+        self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
+        #self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        #self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        #self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        #return self.entities
+        # self.entities - grid/display
+        for index, entity in enumerate(self.entities):
+            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+            entity.label_name.grid(column=1, row=index, sticky="NSEW")
+            entity.label_status.grid(column=2, row=index, sticky="NSEW")
+            entity.label_built.grid(column=3, row=index, sticky="NSEW")
+            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+            #self.update()
+        #
+
+        #header = self.Header()
+        #header.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        # selection
+        #selection = self.Selection()
+        # info
+        #info = self.Info()
+        #info.frame_info_section.grid(row=self.row_start_info_section, column=0)
+        # action
+        #action = self.Action(selection)
+        #action.frame_button_section.grid(row=self.row_start_action_section, column=0, sticky="ew")
         
         
         # info
 
-        self.create_info_section()
+        #self.create_info_section()
 
         #self.update()
         # Configuration of the grid
         #selection.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
         #selection.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
         #selection.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
-        self.update()
-        selection = self.Selection()
+        #self.update()
+        #selection = self.Selection()
         
-        print(self.winfo_width())
-        selection.draw_entities()
+        #print(self.winfo_width())
+        #selection.draw_entities()
         
-        selection.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="news")
+        #selection.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="news")
 
         #selection.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
         #selection.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
@@ -155,10 +269,9 @@ class AppPage(tk.Tk):
         def __init__(self):
             # Entities
             self.entities = []
-            # https://www.youtube.com/watch?v=VmlgrrXAqb4
             # Frame
             self.frame_entity_section = ttk.Frame(style="Test.TFrame") # TODO: change style here?
-            # Canvas (only text and canvas widgets are scrollable)
+            # Canvas (only text and canvas widgets are scrollable) https://www.youtube.com/watch?v=VmlgrrXAqb4
             self.canvas_entities = tk.Canvas(self.frame_entity_section, height=40, bg='yellow')
             self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
             # Scrollbar
@@ -174,13 +287,9 @@ class AppPage(tk.Tk):
             self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
             self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
             self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
-        def draw_entities(self):
-            #print(self.winfo_width())
-            self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=661-20) #width=661-20
-            #self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
-            #self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
-            #self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
-            
+            # Populate list with entities
+            self.create_entities()
+        def create_entities(self):
             # DB - sqlite - get entities
             con = sqlite3.connect('projecty.sqlitedb')
             cur = con.cursor()
@@ -194,6 +303,11 @@ class AppPage(tk.Tk):
                 # Store objects in list
                 entity = self.Entity(obj, self.frame_canvas)
                 self.entities.append(entity)
+        def draw_entities(self):
+            self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=661-20) #width=661-20
+            #self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+            #self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+            #self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
             #return self.entities
 
             # self.entities - grid/display
@@ -243,6 +357,51 @@ class AppPage(tk.Tk):
                         message = message + "\u2022 " + item + "\n"
                 showinfo(title=title,message=message) # global tk function.
 
+    
+    class Action():
+        def __init__(self, selection):
+            self.selection = selection
+            
+            # Button Section
+            # Frame
+            self.frame_button_section = ttk.Frame(style="Cmd.TFrame")
+            # Buttons
+            # run
+            self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
+            self.button_run.pack(side='right', padx=(0,4), pady=4)
+            # stop
+            self.button_stop = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STOP", command=self.run_cmd)
+            self.button_stop.pack(side='right', padx=(0,4), pady=4)
+            # build
+            self.button_build = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="BUILD", command=self.run_cmd)
+            self.button_build.pack(side='right', padx=(0,4), pady=4)
+            # status
+            self.button_status = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="STATUS", command=self.run_cmd)
+            self.button_status.pack(side='right', padx=(0,4), pady=(5,2))
+            # status
+            self.button_clear = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="CLEAR", command=self.run_cmd)
+            self.button_clear.pack(side='right', padx=(0,4), pady=(5,2))
+
+            print(self.selection.entities[0].entity['runCmd'])
+            print(self.selection.entities[0].checkbox_var.get())
+
+        # Actions/Commands
+        # run
+        def run_cmd(self):
+            print("run!")
+            #self.cursor_watch(True)
+            for entity in self.selection.entities:
+                print(entity.entity['name'])
+                print(entity.checkbox_var.get())
+
+                #if entity.checkbox_var.get() == "1":
+                    #print(entity.entity['runCmd'])
+                    #self.display_text("Running: " + entity.entity['name'])
+                    #self.stream_text_sdtout(entity.entity['runCmd'])
+                    #self.status_running_check(entity)
+            #self.cursor_watch(False)
+
+
 
             #for i in range(50):
             #    for j in range(8):
@@ -252,29 +411,29 @@ class AppPage(tk.Tk):
 
         
     # Header - TODO: remove this section
-    def create_header_section(self):
-        self.frame_header = ttk.Frame(self, style="Header.TFrame")
-        self.frame_header.grid(column=0, row=self.row_start_selection, columnspan=5, sticky="NSEW")
-        # Checkbox
-        self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
-        self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
-        self.checkbox_header_var = tk.StringVar()
-        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
-                                        style="Header.TCheckbutton", command=self.toogle_checkboxes)
-        self.checkbox_header.pack()
-        # Name
-        self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
-        self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
-        # Status
-        self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
-        self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
-        # Built
-        self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
-        self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
-        # Info
-        self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
-        self.label_header_info.place(x=550, y=0)
-        #self.label_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
+    #def create_header_section(self):
+    #    self.frame_header = ttk.Frame(self, style="Header.TFrame")
+    #    self.frame_header.grid(column=0, row=self.row_start_selection, columnspan=5, sticky="NSEW")
+    #    # Checkbox
+    #    self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
+    #    self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
+    #    self.checkbox_header_var = tk.StringVar()
+    #    self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+    #                                    style="Header.TCheckbutton", command=self.toogle_checkboxes)
+    #    self.checkbox_header.pack()
+    #    # Name
+    #    self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+    #    self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
+    #    # Status
+    #    self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
+    #    self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
+    #    # Built
+    #    self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
+    #    self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
+    #    # Info
+    #    self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
+    #    self.label_header_info.place(x=550, y=0)
+    #    #self.label_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
 
 
 
@@ -406,7 +565,7 @@ class AppPage(tk.Tk):
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
-        self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
+        #self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
         self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
                                         highlightthickness=1, highlightbackground=VERY_DARK_GREY)
@@ -451,11 +610,11 @@ class AppPage(tk.Tk):
             self.text_info_section.config(cursor="xterm")
         self.update() # Force update so the cursor change don't wait for another event.
 
-    # Button Section
-    def create_button_section(self):
+    # Action/Button Section
+    def create_action_section(self):
         # Frame
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
-        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        #self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
         # Buttons
         # run
         self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)

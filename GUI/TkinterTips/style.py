@@ -38,6 +38,8 @@ stylename_elements_options('TCheckbutton')
 stylename_elements_options('TFrame')
 stylename_elements_options('TButton')
 stylename_elements_options('Vertical.TScrollbar')
+print("----- ----- -----")
+# stylename_elements_options('TCanvas') see: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/canvas.html
 
 '''
     A ttk widget is made up of elements. The layout determines how elements assembled the widget.
