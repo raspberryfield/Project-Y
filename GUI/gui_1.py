@@ -88,9 +88,6 @@ class AppPage(tk.Tk):
         # action / buttons
         self.create_action_section()
 
-
-
-
         # Draw (place, pack or grid)
         # Info:
         '''
@@ -103,46 +100,55 @@ class AppPage(tk.Tk):
         # Selection:
         '''
         The selection section is a frame with a scrollable canvas and its own grid. It's hard to make it fit the width dynamically.
-        The solution is to pass in the root windows width after the largest widget (text box) is drawn.
+        The solution is to pass in the root windows width after the largest widget (info box) is drawn.
         '''
         self.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="NSEW")
         self.draw_entities(self.winfo_width())
-
-        # Header
-        self.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
-        
-        # Action/Buttons
+        # Header:
         '''
-        Everything must be drawn before the action section because the commands here uses all objects in the application.
+        The header section is not aware about the grid in the canvas. The align function looks at the coordinates in the canvas grid and
+        uses thoose values to place the header labels so they are aligned. Therefore this must be draw after the selection section.
+        '''
+        self.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        self.draw_aligned_header_section()
+        # Action/Buttons:
+        '''
+        Everything must be drawn before the action section, because the commands here uses all objects in the application.
         '''
         self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
-
-        #self.draw_entities()
-        # info
-
-
-
+        # END Draw
 
     def create_header_section(self):
         # Frame
         self.frame_header = ttk.Frame(self, height=25, style="Header.TFrame")
         #self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
-        ## Checkbox
-        #self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
+        # Checkbox
+        self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         #self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
-        #self.checkbox_header_var = tk.StringVar()
-        #self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
-        #                                style="Header.TCheckbutton", command=self.toogle_checkboxes)
-        #self.checkbox_header.pack()
-        ## Name
-        #self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
-        ## Status
-        #self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
-        ## Built
-        #self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
-        ## Info
-        #self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
-        #self.label_header_info.place(x=550, y=0)
+        self.checkbox_header_var = tk.StringVar()
+        self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+                                        style="Header.TCheckbutton", command=self.toogle_checkboxes)
+        self.checkbox_header.pack()
+        # Name
+        self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+        # Status
+        self.label_header_status = ttk.Label(self, text="STATUS", style="Header.TLabel")
+        # Built
+        self.label_header_built = ttk.Label(self, text="BUILT", style="Header.TLabel")
+    def draw_aligned_header_section(self):
+        # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
+        self.update() # Force update so we can get the cells real values.
+        self.header_top_padding = 3
+        self.checkbox_left_padding = 5 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
+        position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
+        self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
+        position_label_name = self.frame_canvas.grid_bbox(1, self.last_row)
+        self.label_header_name.place(x=position_label_name[0], y=self.header_top_padding )
+        position_label_status = self.frame_canvas.grid_bbox(2, self.last_row)
+        self.label_header_status.place(x=position_label_status[0], y=self.header_top_padding )
+        position_label_built = self.frame_canvas.grid_bbox(3, self.last_row)
+        self.label_header_built.place(x=position_label_built[0], y=self.header_top_padding )
 
     def create_selection_section(self):
         # Frame
