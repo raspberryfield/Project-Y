@@ -8,6 +8,7 @@
 # https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html (explains the event loop!)
 # https://dafarry.github.io/tkinterbook/ (didn't use it much, but could be good resource.)
 
+from email.header import Header
 import tkinter as tk
 from tkinter import BOTH, ttk
 from tkinter.messagebox import showerror, showwarning, showinfo
@@ -50,6 +51,9 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Header.TLabel", foreground=WHITE, background=VERY_DARK_GREEN)
         # entity styles
+        self.style.configure("Test.TFrame", background="blue")
+        self.style.configure("Test2.TFrame", background="green")
+
         self.style.configure("Entity.TFrame", background=BLACK)
         self.style.configure("Entity.TCheckbutton", background=BLACK, indicatorcolor=WHITE)
         self.style.map('Entity.TCheckbutton', background=[('active', DARK_GREY)],
@@ -74,21 +78,47 @@ class AppPage(tk.Tk):
         # Render order
         self.row_start_header = 0
         self.row_start_entities = 1
-        self.row_start_info_section = 2 # this will be incremented by the entity loop.
+        self.row_start_info_section = 2 # this will be incremented by the entity loop. TODO: maybe not!
         # Header
-        self.create_header_section()
+        header = self.Header()
+        header.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+
+        #self.create_header_section()
         # Entities
         self.entities = []
-        #self.create_entity_section(self.frame_entity_section)
+        self.create_entity_section()
         # Info
         self.create_info_section()
         # Buttons
         #self.create_button_section()
+    
+    # TODO: move this down later
+    class Header():
+        def __init__(self):
+            # Frame
+            self.frame_header = ttk.Frame(height=25, style="Header.TFrame")
+            #self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+            # Checkbox
+                #self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
+                ##self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
+                #self.checkbox_header_var = tk.StringVar()
+                #self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
+                #                                style="Header.TCheckbutton", command=self.toogle_checkboxes)
+                #self.checkbox_header.pack()
+                ## Name
+                #self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
+                ## Status
+                #self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
+                ## Built
+                #self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
+                ## Info
+                #self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
+                #self.label_header_info.place(x=550, y=0)
         
-    # Header
+    # Header - TODO: remove this section
     def create_header_section(self):
-        self.frame_test_header = ttk.Frame(self, style="Header.TFrame")
-        self.frame_test_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+        self.frame_header = ttk.Frame(self, style="Header.TFrame")
+        self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
         # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
@@ -112,7 +142,7 @@ class AppPage(tk.Tk):
 
 
 
-    # checkbox function
+    # checkbox function - TODO: move and rewrite this.
     def toogle_checkboxes(self):
         if self.checkbox_header_var.get() == "1":
             for entity in self.entities:
@@ -122,35 +152,55 @@ class AppPage(tk.Tk):
                 entity.checkbox_var.set("0")
 
     # Entities
-    def create_entity_section(self, frame):
+    def create_entity_section(self):
+        # https://www.youtube.com/watch?v=VmlgrrXAqb4
         # Frame
-        frame_entity_section = frame
-        #self.frame_entity_section = ttk.Frame(self, style="Info.TFrame") # TODO: change style here?
-        #self.frame_entity_section.grid(row=self.row_start_entities, column=0, columnspan=5, sticky="news")
+        self.frame_entity_section = ttk.Frame(self, style="Test.TFrame") # TODO: change style here?
+        self.frame_entity_section.grid(row=self.row_start_entities, column=0, columnspan=5, sticky="news")
         # Canvas (only text and canvas widgets are scrollable)
-        self.canvas_entities = tk.Canvas(frame_entity_section, height=60, bg="yellow")
-        #self.canvas_entities.pack(fill=BOTH)
-        self.canvas_entities.grid(row=self.row_start_entities, column=0, columnspan=5, sticky="nsew")
-
-        # configure the grid
+        self.canvas_entities = tk.Canvas(self.frame_entity_section, height=40, bg='yellow')
+        self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
+        
+        # configure the canvas grid grid - without this, it wont expand after the info box is drawn.
         #self.canvas_entities.columnconfigure(0, weight=1) # CHECKBOX
         #self.canvas_entities.columnconfigure([1,2], weight=8) # TEXT | STATUS
         #self.canvas_entities.columnconfigure([3,4], weight=4) # BUILT | INFO
 
-        ## Add a canvas in that frame
-        #canvas = tk.Canvas(frame_canvas, bg="yellow")
-        #canvas.grid(row=0, column=0, sticky="news")
+        # Scrollbar
+        self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
+        self.scrollbar_entities.pack(side='right', fill='both')
+        self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+        # Create a frame to contain the entities
+        self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
+        self.frame_canvas.pack(fill=BOTH, expand=True)
 
-        # Text
-        #self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
-        #                                highlightthickness=1, highlightbackground=VERY_DARK_GREY)
-        #self.text_info_section.pack(side='left')
+        self.canvas_entities.create_window((0, 0), window=self.frame_canvas, scrollregion = self.canvas_entities.bbox("all"), anchor='nw')
+        
+        # two important examples:
+        # https://www.youtube.com/watch?v=VmlgrrXAqb4
+        # https://stackoverflow.com/questions/57927145/tkinter-frame-not-expanding-with-canvas
+        
+        #canvas.create_window((0, 0), window=frame_buttons, anchor='nw')
 
-        ## Create a frame for the canvas with non-zero row&column weights
-        #frame_canvas = tk.Frame(frame_main)
-        #frame_canvas.grid(row=2, column=0, pady=(5, 0), sticky='nw')
-        #frame_canvas.grid_rowconfigure(0, weight=1)
-        #frame_canvas.grid_columnconfigure(0, weight=1)
+        # canvas.configure(scrollregion = canvas.bbox("all"))
+        
+        
+        # Create a frame to contain the buttons
+        #frame_buttons = tk.Frame(canvas, bg="blue")
+        #canvas.create_window((0, 0), window=frame_buttons, anchor='nw')
+
+
+        # Scrollbar
+        #self.text_info_scrollbar = ttk.Scrollbar(self.frame_info_section, style="Vertical.TScrollbar", orient='vertical', command=self.text_info_section.yview)
+        #self.text_info_scrollbar.pack(side='right', fill='both')
+        ##  communicate back to the scrollbar
+        #self.text_info_section['yscrollcommand'] = self.text_info_scrollbar.set
+#
+        ## Link a scrollbar to the canvas
+        #vsb = tk.Scrollbar(frame_canvas, orient="vertical", command=canvas.yview)
+        #vsb.grid(row=0, column=1, sticky='ns')
+        #canvas.configure(yscrollcommand=vsb.set)
+
 
         # https://gist.github.com/novel-yet-trivial/49fa18828cddca44a2befae84cfd67ad
         # https://stackoverflow.com/questions/52617975/aligning-tkinter-grids-on-separate-frames
@@ -169,19 +219,19 @@ class AppPage(tk.Tk):
         # self.entities - store
         for obj in db_entities:
             # Store objects in list
-            entity = self.Entity(obj, self.canvas_entities)
+            entity = self.Entity(obj, self.frame_canvas)
             self.entities.append(entity)
         
 
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
-            entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_name.grid(column=1, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_status.grid(column=2, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_built.grid(column=3, row=index+self.row_start_entities, sticky="NSEW")
-            entity.frame_button.grid(column=4, row=index+self.row_start_entities, sticky="NSEW")
-            self.row_start_info_section += 1
-            self.update()
+            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+            entity.label_name.grid(column=1, row=index, sticky="NSEW")
+            entity.label_status.grid(column=2, row=index, sticky="NSEW")
+            entity.label_built.grid(column=3, row=index, sticky="NSEW")
+            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+            #self.row_start_info_section += 1
+            #self.update()
             print(entity.widget.grid_bbox(column=1, row=index+self.row_start_entities))
 
         #    entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
