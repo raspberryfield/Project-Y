@@ -16,6 +16,7 @@ import sqlite3
 import json
 import subprocess
 import time
+from turtle import width
 
 BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
@@ -35,10 +36,11 @@ class AppPage(tk.Tk):
         self.title('PROJECT-Y')
         self.eval('tk::PlaceWindow . center') #centers window on start.
         self.resizable(tk.FALSE, tk.FALSE)
+        
         # configure the grid
         self.columnconfigure(0, weight=1) # CHECKBOX
-        self.columnconfigure([1,2], weight=8) # TEXT | STATUS
-        self.columnconfigure([3,4], weight=4) # BUILT | INFO
+        #self.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        #self.columnconfigure([3,4], weight=4) # BUILT | INFO
 
         # Styles
         # Style config
@@ -51,8 +53,8 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
         self.style.configure("Header.TLabel", foreground=WHITE, background=VERY_DARK_GREEN)
         # entity styles
-        self.style.configure("Test.TFrame", background="blue")
-        self.style.configure("Test2.TFrame", background="green")
+        self.style.configure("Test.TFrame", background="blue") # TODO: remove
+        self.style.configure("Test2.TFrame", background="green")# TODO: remove
 
         self.style.configure("Entity.TFrame", background=BLACK)
         self.style.configure("Entity.TCheckbutton", background=BLACK, indicatorcolor=WHITE)
@@ -74,21 +76,55 @@ class AppPage(tk.Tk):
         self.style.map('Cmd.TButton', background=[('active', DARK_GREEN)],
             indicatorcolor=[('selected', DARK_GREEN)])
 
+        # Objects
+        #self.entities = [] # Most is based on direct access to this list of entities.
+
         # Structure
-        # Render order
+        # render order
         self.row_start_header = 0
-        self.row_start_entities = 1
+        self.row_start_selection = 1
         self.row_start_info_section = 2 # this will be incremented by the entity loop. TODO: maybe not!
-        # Header
+        # Sections
+        # header
         header = self.Header()
-        header.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+        header.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        # selection
+        
+        
+        # info
+
+        self.create_info_section()
+
+        #self.update()
+        # Configuration of the grid
+        #selection.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        #selection.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        #selection.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        self.update()
+        selection = self.Selection()
+        
+        print(self.winfo_width())
+        selection.draw_entities()
+        
+        selection.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="news")
+
+        #selection.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        #selection.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        #selection.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        #for entity in self.entities:
+        #    print(entity)
+        
+
+        
+
+        
 
         #self.create_header_section()
         # Entities
-        self.entities = []
-        self.create_entity_section()
+        
+        #self.create_entity_section()
         # Info
-        self.create_info_section()
+        
         # Buttons
         #self.create_button_section()
     
@@ -114,11 +150,111 @@ class AppPage(tk.Tk):
                 ## Info
                 #self.label_header_info = ttk.Label(self, text=" TEST", style="Header.TLabel")
                 #self.label_header_info.place(x=550, y=0)
+
+    class Selection():
+        def __init__(self):
+            # Entities
+            self.entities = []
+            # https://www.youtube.com/watch?v=VmlgrrXAqb4
+            # Frame
+            self.frame_entity_section = ttk.Frame(style="Test.TFrame") # TODO: change style here?
+            # Canvas (only text and canvas widgets are scrollable)
+            self.canvas_entities = tk.Canvas(self.frame_entity_section, height=40, bg='yellow')
+            self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
+            # Scrollbar
+            self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
+            self.scrollbar_entities.pack(side='right', fill='both')
+            self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+            # Bind
+            self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
+            # Create a frame to contain the entities
+            self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
+            #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
+            # Configuration of the grid
+            self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+            self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+            self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        def draw_entities(self):
+            #print(self.winfo_width())
+            self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=661-20) #width=661-20
+            #self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+            #self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+            #self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+            
+            # DB - sqlite - get entities
+            con = sqlite3.connect('projecty.sqlitedb')
+            cur = con.cursor()
+            db_entities = []
+            for row in cur.execute("SELECT id, data FROM entities ORDER BY id ASC"):
+                db_entities.append(json.loads(row[1]))
+            cur.close()
+            con.close()
+            # self.entities - store
+            for obj in db_entities:
+                # Store objects in list
+                entity = self.Entity(obj, self.frame_canvas)
+                self.entities.append(entity)
+            #return self.entities
+
+            # self.entities - grid/display
+            for index, entity in enumerate(self.entities):
+                entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+                entity.label_name.grid(column=1, row=index, sticky="NSEW")
+                entity.label_status.grid(column=2, row=index, sticky="NSEW")
+                entity.label_built.grid(column=3, row=index, sticky="NSEW")
+                entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+                #self.row_start_info_section += 1
+                #self.update()
+        class Entity():
+            def __init__(self, docker_object, widget_context):
+                # object values
+                self.entity = docker_object
+                # widget context
+                self.widget = widget_context
+                # checkbox
+                self.frame_checkbox = ttk.Frame(self.widget, style="Entity.TFrame")
+                self.checkbox_var = tk.StringVar()
+                self.checkbox = ttk.Checkbutton(self.frame_checkbox, variable=self.checkbox_var, style="Entity.TCheckbutton")
+                self.checkbox.pack()
+                # labels
+                self.label_name = ttk.Label(self.widget, text=self.entity["name"], style="Entity.TLabel")
+                self.label_status = ttk.Label(self.widget, text="UNKNOWN", style="Entity.TLabel")
+                self.label_built = ttk.Label(self.widget, text="?", style="Entity.TLabel")
+                # button
+                self.frame_button = ttk.Frame(self.widget, style="Entity.TFrame")
+                self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
+                                    command=self.show_info_message
+                                    )
+                self.button.pack(side='right')
+            # Methods
+            def show_info_message(self):
+                title = self.entity['name']
+                message = self.entity['description'] + "\n\n"
+                message = message + "Access: \n"
+                for dictionary in self.entity['access']:
+                    for key,value in dictionary.items():
+                        message = message + "\u2022 " + key + " - " + value + "\n"
+                message = message + "\n" + "Additional Information: " + "\n"
+                for item in self.entity['additionalInformation']:
+                    if item == "None":
+                        message = message + "None"
+                        break
+                    else:
+                        message = message + "\u2022 " + item + "\n"
+                showinfo(title=title,message=message) # global tk function.
+
+
+            #for i in range(50):
+            #    for j in range(8):
+            #        ttk.Button(self.frame_canvas, text="My Button - "+str(i)+" - " + str(j)).grid(row=i, column=j)
+
+            #self.frame_entity_section.grid(row=self.row_start_entities, column=0, sticky="news")
+
         
     # Header - TODO: remove this section
     def create_header_section(self):
         self.frame_header = ttk.Frame(self, style="Header.TFrame")
-        self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
+        self.frame_header.grid(column=0, row=self.row_start_selection, columnspan=5, sticky="NSEW")
         # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
         self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
@@ -156,25 +292,49 @@ class AppPage(tk.Tk):
         # https://www.youtube.com/watch?v=VmlgrrXAqb4
         # Frame
         self.frame_entity_section = ttk.Frame(self, style="Test.TFrame") # TODO: change style here?
-        self.frame_entity_section.grid(row=self.row_start_entities, column=0, columnspan=5, sticky="news")
         # Canvas (only text and canvas widgets are scrollable)
         self.canvas_entities = tk.Canvas(self.frame_entity_section, height=40, bg='yellow')
         self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
+        # Scrollbar
+        self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
+        self.scrollbar_entities.pack(side='right', fill='both')
+        self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+        # Bind
+        self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
+
         
+
         # configure the canvas grid grid - without this, it wont expand after the info box is drawn.
         #self.canvas_entities.columnconfigure(0, weight=1) # CHECKBOX
         #self.canvas_entities.columnconfigure([1,2], weight=8) # TEXT | STATUS
         #self.canvas_entities.columnconfigure([3,4], weight=4) # BUILT | INFO
 
-        # Scrollbar
-        self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
-        self.scrollbar_entities.pack(side='right', fill='both')
-        self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+        # Canvas Frame
+        #my_frame = Frame(my_canvas)
+        #my_canvas.create_window((0,0), window=my_frame, anchor="nw")
+        
+        
         # Create a frame to contain the entities
         self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
-        self.frame_canvas.pack(fill=BOTH, expand=True)
+        self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
+        # Display
+        self.frame_entity_section.grid(row=self.row_start_entities, column=0, sticky="news")
 
-        self.canvas_entities.create_window((0, 0), window=self.frame_canvas, scrollregion = self.canvas_entities.bbox("all"), anchor='nw')
+        self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+
+        for i in range(50):
+            for j in range(8):
+                ttk.Button(self.frame_canvas, text="My Button - "+str(i)+" - " + str(j)).grid(row=i, column=j)
+
+        #self.frame_entity_section.grid(row=self.row_start_entities, column=0, sticky="news")
+        #Here
+
+
+        
+
+        #self.canvas_entities.create_window((0, 0), window=self.frame_canvas, scrollregion = self.canvas_entities.bbox("all"), anchor='nw')
         
         # two important examples:
         # https://www.youtube.com/watch?v=VmlgrrXAqb4
@@ -217,22 +377,22 @@ class AppPage(tk.Tk):
         cur.close()
         con.close()
         # self.entities - store
-        for obj in db_entities:
-            # Store objects in list
-            entity = self.Entity(obj, self.frame_canvas)
-            self.entities.append(entity)
-        
-
-        # self.entities - grid/display
-        for index, entity in enumerate(self.entities):
-            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
-            entity.label_name.grid(column=1, row=index, sticky="NSEW")
-            entity.label_status.grid(column=2, row=index, sticky="NSEW")
-            entity.label_built.grid(column=3, row=index, sticky="NSEW")
-            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
-            #self.row_start_info_section += 1
-            #self.update()
-            print(entity.widget.grid_bbox(column=1, row=index+self.row_start_entities))
+        #for obj in db_entities:
+        #    # Store objects in list
+        #    entity = self.Entity(obj, self.frame_canvas)
+        #    self.entities.append(entity)
+        #
+#
+        ## self.entities - grid/display
+        #for index, entity in enumerate(self.entities):
+        #    entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+        #    entity.label_name.grid(column=1, row=index, sticky="NSEW")
+        #    entity.label_status.grid(column=2, row=index, sticky="NSEW")
+        #    entity.label_built.grid(column=3, row=index, sticky="NSEW")
+        #    entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+        #    #self.row_start_info_section += 1
+        #    #self.update()
+        #    print(entity.widget.grid_bbox(column=1, row=index+self.row_start_entities))
 
         #    entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
         #    entity.label_name.grid(column=1, row=index+self.row_start_entities, sticky="NSEW")
