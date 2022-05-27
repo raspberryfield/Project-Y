@@ -1,0 +1,12 @@
+{
+    "id": 3,
+    "name": "SUPERSET",
+    "description": "Apache Superset is a datavisualization and explore tool..",
+    "imageName": ["y-superset"],
+    "runCmd": "docker run -p 8004:8088 --network=y-net --mount source=project-y-superset,target=/app --name y-superset --rm -d y-superset",
+    "stopCmd": "docker stop y-superset",
+    "buildCmd": "docker build -t y-superset ../Docker/Y-Images/Y-Superset/",
+    "access": [{"localhost:8004": "Superset start page."},
+        {"superset.local" : "Superset start page."}],
+    "additionalInformation": ["NOTE! It will take around 5min to build this image.", "It will take 30s to stop it.", "u/p admin"]
+}

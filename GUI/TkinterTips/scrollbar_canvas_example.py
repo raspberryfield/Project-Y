@@ -18,7 +18,6 @@ my_canvas.pack(side=LEFT, fill="both")
 
 yscrollbar = ttk.Scrollbar(wrapper1, orient="vertical", command=my_canvas.yview)
 yscrollbar.pack(side=RIGHT, fill="y")
-
 my_canvas.configure(yscrollcommand=yscrollbar.set)
 
 my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox('all')))

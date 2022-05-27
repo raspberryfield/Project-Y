@@ -1,1 +1,6 @@
 gnome-terminal -- bash -c "docker image ls; exec bash"
+
+docker run -it --network=y-net --entrypoint /bin/bash y-ubuntu
+
+
+gnome-terminal -- bash -c "docker run -it --network=y-net --entrypoint /bin/bash y-ubuntu; exec bash"

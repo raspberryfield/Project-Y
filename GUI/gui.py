@@ -8,13 +8,15 @@
 # https://profjahier.github.io/html/NSI/tkinter/doc_tk_allegee/tutorial/eventloop.html (explains the event loop!)
 # https://dafarry.github.io/tkinterbook/ (didn't use it much, but could be good resource.)
 
+from email.header import Header
 import tkinter as tk
-from tkinter import ttk
+from tkinter import BOTH, ttk
 from tkinter.messagebox import showerror, showwarning, showinfo
 import sqlite3
 import json
 import subprocess
 import time
+from turtle import width
 
 BLACK = "#141414" #"#262626"
 WHITE = "#ffffff"
@@ -23,6 +25,8 @@ VERY_DARK_GREEN = "#014145"
 GREY = "#6b6a6a"
 DARK_GREY = "#545454"
 VERY_DARK_GREY = "#363535"
+
+CANVAS_HEIGHT = 90
 
 
 class AppPage(tk.Tk):
@@ -34,10 +38,9 @@ class AppPage(tk.Tk):
         self.title('PROJECT-Y')
         self.eval('tk::PlaceWindow . center') #centers window on start.
         self.resizable(tk.FALSE, tk.FALSE)
+        
         # configure the grid
-        self.columnconfigure(0, weight=1) # CHECKBOX
-        self.columnconfigure([1,2], weight=8) # TEXT | STATUS
-        self.columnconfigure([3,4], weight=4) # BUILT | INFO
+        self.columnconfigure(0, weight=1) #Everything is treated as it exists in one column. Except for the selection section that has its own grid.
 
         # Styles
         # Style config
@@ -71,42 +74,84 @@ class AppPage(tk.Tk):
             indicatorcolor=[('selected', DARK_GREEN)])
 
         # Structure
-        # Render order
+        # render order
         self.row_start_header = 0
-        self.row_start_entities = 1
-        self.row_start_info_section = 2 # this will be incremented by the entity loop.
-        # Header
+        self.row_start_selection = 1
+        self.row_start_info_section = 2
+        self.row_start_action_section = 3
+        # Sections
+        # header
         self.create_header_section()
-        # Entities
+        # selection
         self.entities = []
-        self.create_entity_section()
-        # Info
+        self.create_selection_section()
+        # info
         self.create_info_section()
-        # Buttons
-        self.create_button_section()
-        
-    # Header
+        # action / buttons
+        self.create_action_section()
+
+        # Draw (place, pack or grid)
+        # Info:
+        '''
+        The text widget is using the default width. Which works fine as a width for this application. However, the widget is behaving in kind of
+        canonical way. It pushes the main window to fit itself. Some frames have problem to dynamically adapt to this behaviour. Since it behaves 
+        like a 'master' let's start with it, So we get the full width window immediately.
+        '''
+        self.frame_info_section.grid(row=self.row_start_info_section, column=0)
+        self.update() # Force update so info box is drawn so we get the correct window width.
+        # Selection:
+        '''
+        The selection section is a frame with a scrollable canvas and its own grid. It's hard to make it fit the width dynamically.
+        The solution is to pass in the root windows width after the largest widget (info box) is drawn.
+        '''
+        self.frame_entity_section.grid(row=self.row_start_selection, column=0, sticky="NSEW")
+        self.draw_entities(self.winfo_width())
+        # Header:
+        '''
+        The header section is not aware about the grid in the canvas. The align function looks at the coordinates in the canvas grid and
+        uses thoose values to place the header labels so they are aligned. Therefore this must be draw after the selection section.
+        '''
+        self.frame_header.grid(row=self.row_start_header, column=0, sticky="NSEW")
+        self.draw_aligned_header_section()
+        # Action/Buttons:
+        '''
+        Everything must be drawn before the action section, because the commands here uses all objects in the application.
+        '''
+        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        # END Draw
+
     def create_header_section(self):
+        # Frame
+        self.frame_header = ttk.Frame(self, height=25, style="Header.TFrame")
+        #self.frame_header.grid(column=0, row=self.row_start_header, columnspan=5, sticky="NSEW")
         # Checkbox
         self.frame_checkbox_header = ttk.Frame(self, style="Header.TFrame")
-        self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
+        #self.frame_checkbox_header.grid(column=0, row=self.row_start_header, sticky="NSEW")
         self.checkbox_header_var = tk.StringVar()
         self.checkbox_header = ttk.Checkbutton(self.frame_checkbox_header, variable=self.checkbox_header_var,
                                         style="Header.TCheckbutton", command=self.toogle_checkboxes)
         self.checkbox_header.pack()
         # Name
         self.label_header_name = ttk.Label(self, text="NAME", style="Header.TLabel")
-        self.label_header_name.grid(column=1, row=self.row_start_header, sticky="nesw")
         # Status
-        self.label_header_info = ttk.Label(self, text="STATUS", style="Header.TLabel")
-        self.label_header_info.grid(column=2, row=self.row_start_header, sticky="nesw")
+        self.label_header_status = ttk.Label(self, text="STATUS", style="Header.TLabel")
         # Built
-        self.label_header_info = ttk.Label(self, text="BUILT", style="Header.TLabel")
-        self.label_header_info.grid(column=3, row=self.row_start_header, sticky="nesw")
-        # Info
-        self.label_header_info = ttk.Label(self, text=" ", style="Header.TLabel")
-        self.label_header_info.grid(column=4, row=self.row_start_header, sticky="nesw")
-    # checkbox function
+        self.label_header_built = ttk.Label(self, text="BUILT", style="Header.TLabel")
+    def draw_aligned_header_section(self):
+        # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
+        self.update() # Force update so we can get the cells real values.
+        self.header_top_padding = 3
+        self.checkbox_left_padding = 5 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
+        position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
+        self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
+        position_label_name = self.frame_canvas.grid_bbox(1, self.last_row)
+        self.label_header_name.place(x=position_label_name[0], y=self.header_top_padding )
+        position_label_status = self.frame_canvas.grid_bbox(2, self.last_row)
+        self.label_header_status.place(x=position_label_status[0], y=self.header_top_padding )
+        position_label_built = self.frame_canvas.grid_bbox(3, self.last_row)
+        self.label_header_built.place(x=position_label_built[0], y=self.header_top_padding )
+    # header checkbox function
     def toogle_checkboxes(self):
         if self.checkbox_header_var.get() == "1":
             for entity in self.entities:
@@ -115,9 +160,27 @@ class AppPage(tk.Tk):
             for entity in self.entities:
                 entity.checkbox_var.set("0")
 
-    # Entities
-    def create_entity_section(self):
-        # DB - sqlite
+    def create_selection_section(self):
+        # Frame
+        self.frame_entity_section = ttk.Frame(self, style="Test.TFrame") # TODO: change style here?
+        # Canvas (only text and canvas widgets are scrollable) https://www.youtube.com/watch?v=VmlgrrXAqb4
+        self.canvas_entities = tk.Canvas(self.frame_entity_section, height=CANVAS_HEIGHT, bg=BLACK, highlightbackground=VERY_DARK_GREY)
+        self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
+        # Scrollbar
+        self.scrollbar_entities = ttk.Scrollbar(self.frame_entity_section, style="Vertical.TScrollbar", orient='vertical', command=self.canvas_entities.yview)
+        self.scrollbar_entities.pack(side='right', fill='both')
+        self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
+        # Bind
+        self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
+        # Create a frame to contain the entities
+        self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
+        #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
+        # Configuration of the grid
+        self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
+        self.frame_canvas.columnconfigure([1,2], weight=8) # TEXT | STATUS
+        self.frame_canvas.columnconfigure([3,4], weight=4) # BUILT | INFO
+        # Populate list with entities
+        # db-sqlite - get entities
         con = sqlite3.connect('projecty.sqlitedb')
         cur = con.cursor()
         db_entities = []
@@ -128,23 +191,23 @@ class AppPage(tk.Tk):
         # self.entities - store
         for obj in db_entities:
             # Store objects in list
-            entity = self.Entity(obj)
-            self.entities.append(entity)
+            entity = self.Entity(obj, self.frame_canvas)
+            self.entities.append(entity)   
+    def draw_entities(self, window_width):
+        self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
-            entity.frame_checkbox.grid(column=0, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_name.grid(column=1, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_status.grid(column=2, row=index+self.row_start_entities, sticky="NSEW")
-            entity.label_built.grid(column=3, row=index+self.row_start_entities, sticky="NSEW")
-            entity.frame_button.grid(column=4, row=index+self.row_start_entities, sticky="NSEW")
-            # Dynamically set the row that the info label can start on.
-            self.row_start_info_section += 1
+            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+            entity.label_name.grid(column=1, row=index, sticky="NSEW")
+            entity.label_status.grid(column=2, row=index, sticky="NSEW")
+            entity.label_built.grid(column=3, row=index, sticky="NSEW")
+            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
 
     # Info box
     def create_info_section(self):
         # Frame
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
-        self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
+        #self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
         self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
                                         highlightthickness=1, highlightbackground=VERY_DARK_GREY)
@@ -189,11 +252,11 @@ class AppPage(tk.Tk):
             self.text_info_section.config(cursor="xterm")
         self.update() # Force update so the cursor change don't wait for another event.
 
-    # Button Section
-    def create_button_section(self):
+    # Action/Button Section
+    def create_action_section(self):
         # Frame
         self.frame_button_section = ttk.Frame(self, style="Cmd.TFrame")
-        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        #self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
         # Buttons
         # run
         self.button_run = ttk.Button(self.frame_button_section, style="Cmd.TButton", text="RUN", command=self.run_cmd)
@@ -301,20 +364,22 @@ class AppPage(tk.Tk):
         self.clear_text()
 
     class Entity():
-        def __init__(self, docker_resource):
+        def __init__(self, docker_object, widget_context):
             # object values
-            self.entity = docker_resource
+            self.entity = docker_object
+            # widget context
+            self.widget = widget_context
             # checkbox
-            self.frame_checkbox = ttk.Frame(style="Entity.TFrame")
+            self.frame_checkbox = ttk.Frame(self.widget, style="Entity.TFrame")
             self.checkbox_var = tk.StringVar()
             self.checkbox = ttk.Checkbutton(self.frame_checkbox, variable=self.checkbox_var, style="Entity.TCheckbutton")
             self.checkbox.pack()
             # labels
-            self.label_name = ttk.Label(text=self.entity["name"], style="Entity.TLabel")
-            self.label_status = ttk.Label(text="UNKNOWN", style="Entity.TLabel")
-            self.label_built = ttk.Label(text="?", style="Entity.TLabel")
+            self.label_name = ttk.Label(self.widget, text=self.entity["name"], style="Entity.TLabel")
+            self.label_status = ttk.Label(self.widget, text="UNKNOWN", style="Entity.TLabel")
+            self.label_built = ttk.Label(self.widget, text="?", style="Entity.TLabel")
             # button
-            self.frame_button = ttk.Frame(style="Entity.TFrame")
+            self.frame_button = ttk.Frame(self.widget, style="Entity.TFrame")
             self.button = ttk.Button(self.frame_button, text="INFO", style="Entity.TButton", 
                                 command=self.show_info_message
                                 )

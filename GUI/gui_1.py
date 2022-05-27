@@ -404,3 +404,6 @@ class AppPage(tk.Tk):
 if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
+
+# TODO:
+# bind mousewheel : https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
