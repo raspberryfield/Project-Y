@@ -42,7 +42,7 @@ def load_db():
     con = sqlite3.connect('projecty.sqlitedb')
     cur = con.cursor()
     cur.execute("DROP TABLE IF EXISTS entities")
-    cur.execute("CREATE TABLE entities (id varchar(3), data json)")
+    cur.execute("CREATE TABLE entities (id INT, data json)")
     for entry in json_data:
         cur.execute("INSERT INTO entities VALUES (?, ?)", [entry['id'], json.dumps(entry)])
         con.commit()
