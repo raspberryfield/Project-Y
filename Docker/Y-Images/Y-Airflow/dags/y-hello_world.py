@@ -6,7 +6,7 @@ from airflow.operators.python_operator import PythonOperator
 def print_hello():
  return 'Hello World!'
 
-dag = DAG('z_hello_world', description='Hello world example', schedule_interval='0 12 * * *', start_date=datetime(2017, 3, 20), catchup=False)
+dag = DAG('y_hello_world', description='Hello world example', schedule_interval='0 12 * * *', start_date=datetime(2017, 3, 20), catchup=False)
 
 dummy_operator = DummyOperator(task_id='dummy_task', retries = 3, dag=dag)
 

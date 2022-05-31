@@ -7,14 +7,14 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 # instantiating the Postgres Operator
 
 with DAG(
-    dag_id="z_postgres_operator_dag",
+    dag_id="y_postgres_operator_dag",
     start_date=datetime.datetime(2020, 2, 2),
     schedule_interval="@once",
     catchup=False,
 ) as dag:
     create_pet_table = PostgresOperator(
         task_id="create_pet_table",
-        postgres_conn_id="z_postgres",
+        postgres_conn_id="y_postgres",
         sql="""
             CREATE TABLE IF NOT EXISTS pet (
             pet_id SERIAL PRIMARY KEY,
@@ -26,7 +26,7 @@ with DAG(
     )
     populate_pet_table = PostgresOperator(
         task_id="populate_pet_table",
-        postgres_conn_id="z_postgres",
+        postgres_conn_id="y_postgres",
         sql="""
             INSERT INTO pet (name, pet_type, birth_date, OWNER)
             VALUES ( 'Max', 'Dog', '2018-07-05', 'Jane');
@@ -38,10 +38,10 @@ with DAG(
             VALUES ( 'Quincy', 'Parrot', '2013-08-11', 'Anne');
             """,
     )
-    get_all_pets = PostgresOperator(task_id="get_all_pets", postgres_conn_id="z_postgres", sql="SELECT * FROM pet;")
+    get_all_pets = PostgresOperator(task_id="get_all_pets", postgres_conn_id="y_postgres", sql="SELECT * FROM pet;")
     get_birth_date = PostgresOperator(
         task_id="get_birth_date",
-        postgres_conn_id="z_postgres",
+        postgres_conn_id="y_postgres",
         sql="""
             SELECT * FROM pet
             WHERE birth_date

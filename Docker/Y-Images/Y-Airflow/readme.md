@@ -17,10 +17,10 @@ No Dockerfile and build command for this image. Instead use the docker-compose f
 ## Run Airflow  
 All commands assumes that you are working from this directory.   
 
-Create an environment file with the host id:  
+Create an environment file with the host id (also included in the pre build script.):  
     `$ echo -e "AIRFLOW_UID=$(id -u)" > .env`  
 Init Airflow:  
-    `$ docker-compose up airflow-init`  
+    `$ docker-compose -f docker-compose-airflow.yaml up airflow-init`  
 You should in the end see the following message if it inits correctly:  
 ```
     airflow-init_1       | User "airflow" created with role "Admin"  
@@ -29,20 +29,20 @@ You should in the end see the following message if it inits correctly:
 Default: -u airflow -p airflow
 
 After the Airflow init, you can run the compose file:  
-    `$ docker-compose up`  
+    `$ docker-compose -f docker-compose-airflow.yaml up`  
 > Note! It takes some time, wait until you see message like this in the terminal: `airflow-worker_1     | [2022-03-13 13:24:51,965: INFO/MainProcess] Events of group {task} enabled by remote.`.  
 
 Stop Docker Compose:  
-    `$ docker-compose down`  
+    `$ docker-compose -f docker-compose-airflow.yaml down`  
 Or cleanup environment:  
-    `$ docker-compose down --volumes --rmi all`  
+    `$ docker-compose -f docker-compose-airflow.yaml down --volumes --rmi all`  
 
 ## Connect to Airflow  
 Webinterface: `localhost:8080`  
     `user:airflow password: airflow`  
 
-You can use the z-ubuntu image and ping to see of *airflow-webserver* is available:  
-    `$ docker run -it --network=z-net --entrypoint /bin/bash z-ubuntu`  
+You can use the y-ubuntu image and ping to see of *airflow-webserver* is available:  
+    `$ docker run -it --network=y-net --entrypoint /bin/bash y-ubuntu`  
     `# ping airflow-webserver`  
 
 ## About Airflow Docker Compose  
@@ -58,12 +58,12 @@ Create an environment file with the host id:
 ## Modifications to the Official Airflow Docker Compose Quick Start File  
 Current version: 2.2.4  
 
-At the end of the file, the z-net network configuration is added:  
+At the end of the file, the y-net network configuration is added:  
 ```
 networks:
   default:
     external:
-      name: z-net
+      name: y-net
 ```  
 
 ## Tutorial Postgres  
@@ -71,16 +71,16 @@ References:
 - Airflow Doc. Postgres Operator - [https://airflow.apache.org/docs/apache-airflow-providers-postgres/stable/operators/postgres_operator_howto_guide.html](https://airflow.apache.org/docs/apache-airflow-providers-postgres/stable/operators/postgres_operator_howto_guide.html)  
 - Managing Connections - [https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection.html)  
 
-In the folder *dags* there are these test dags for Project-Z:  
- - z-example_postgres.py  
- - z-hello_world.py  
+In the folder *dags* there are these test dags for Project-Y:  
+ - y-example_postgres.py  
+ - y-hello_world.py  
 
-The connection to z-postgres is configured in *Admin* -> *connections*. Enter these values:  
+The connection to y-postgres is configured in *Admin* -> *connections*. Enter these values:  
 
 ```
-connection Id : z_postgres  
+connection Id : y_postgres  
 ConnectionType : Postgres  
-Host : z-postgres  
+Host : y-postgres  
 Schema : mme  
 Login : postgres  
 Password : ****  
