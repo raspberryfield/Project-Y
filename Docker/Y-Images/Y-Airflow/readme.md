@@ -75,6 +75,8 @@ In the folder *dags* there are these test dags for Project-Y:
  - y-example_postgres.py  
  - y-hello_world.py  
 
+The *y-hello_world.py* is the most basic example of a dag. It only prints *hello world* to the standard output terminal of the airflow instance. The message can be seen in the log of the DAG after it is run. Note, you need to activate the DAG before you can run it.  
+
 The connection to y-postgres is configured in *Admin* -> *connections*. Enter these values:  
 
 ```
@@ -88,5 +90,5 @@ Port : 5432
 ```  
 > Note! If no connection is specified for the tasks. Airflow will default to a connection named: <OperatorName>_default. e.g. *postgres_default*.  
 
-
+You can now activate and run *y-example_postgres* DAG. Note that the postgres container must be running. Log in to pgadmin and browse the mme database, you should see a new table *pet* been created and populated by the flow.  
 

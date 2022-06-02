@@ -5,7 +5,7 @@
     "imageName": ["y-nginx"],
     "runCmd": "docker run -p 80:80 --network=y-net --name y-nginx --rm -d y-nginx",
     "stopCmd": "docker stop y-nginx",
-    "buildCmd": "docker build -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",
+    "buildCmd": "docker build --rm -t y-nginx ../Docker/Y-Images/Y-Nginx\\ /",
     "access": [{"127.0.0.1": "localhost defaults to nginx start page."},
         {"localhost":"Localhost defaults to localhost:80 in browser. Also Nginx start page."},
         {"nginx.local" : "Nginx start page."},
