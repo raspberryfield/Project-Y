@@ -85,8 +85,6 @@ class AppPage(tk.Tk):
         # selection
         self.entities = []
         self.create_selection_section()
-        self.canvas_entities.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
-        self.canvas_entities.bind('<Button-5>', lambda event: print("scrolling"), add='+')
         # info
         self.create_info_section()
         # action / buttons
@@ -143,7 +141,7 @@ class AppPage(tk.Tk):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
         self.header_top_padding = 3
-        self.checkbox_left_padding = 5 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.checkbox_left_padding = 6 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
         position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
         self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
@@ -174,8 +172,6 @@ class AppPage(tk.Tk):
         self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
         # Bind
         self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
-        self.canvas_entities.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
-        self.canvas_entities.bind('<Button-5>', self.on_mousewheel, add='+')
         # Create a frame to contain the entities
         self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
         #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
@@ -201,16 +197,22 @@ class AppPage(tk.Tk):
         self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
-            entity.label_name.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
-            entity.label_name.bind('<Button-5>', self.on_mousewheel, add='+')
-
+            # bindings
+            entity.label_name.bind('<Button-4>', self.on_mousewheel) # Linux mousewheel scroll up
+            entity.label_name.bind('<Button-5>', self.on_mousewheel) # Linux mousewheel scroll down
+            entity.label_status.bind('<Button-4>', self.on_mousewheel)
+            entity.label_status.bind('<Button-5>', self.on_mousewheel)
+            entity.label_built.bind('<Button-4>', self.on_mousewheel)
+            entity.label_built.bind('<Button-5>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-4>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-5>', self.on_mousewheel)
+            # widgets
             entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
             entity.label_name.grid(column=1, row=index, sticky="NSEW")
             entity.label_status.grid(column=2, row=index, sticky="NSEW")
             entity.label_built.grid(column=3, row=index, sticky="NSEW")
             entity.frame_button.grid(column=4, row=index, sticky="NSEW")
     def on_mousewheel(self,event):
-        print("scroll")
         direction = 0
         if event.num == 5 or event.delta == -120:
             direction = 2
@@ -331,7 +333,9 @@ class AppPage(tk.Tk):
         # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
+        self.draw_aligned_header_section() # Align header so it aligns with the cells when they change position after new values are drawn.
         self.cursor_watch(False)
+        
     # status - build check
     def status_build_check(self, entity):
         process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
@@ -391,8 +395,6 @@ class AppPage(tk.Tk):
             self.checkbox.pack()
             # labels
             self.label_name = ttk.Label(self.widget, text=self.entity["name"], style="Entity.TLabel")
-            
-
             self.label_status = ttk.Label(self.widget, text="UNKNOWN", style="Entity.TLabel")
             self.label_built = ttk.Label(self.widget, text="?", style="Entity.TLabel")
             # button
@@ -421,6 +423,3 @@ class AppPage(tk.Tk):
 if __name__ == "__main__":
     app = AppPage()
     app.mainloop()
-
-# TODO:
-# bind mousewheel : https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
