@@ -33,9 +33,6 @@ my_canvas.create_window((0,0), window=my_frame, anchor="nw")
 wrapper1.pack(fill="both", expand="yes", padx=10, pady=10)
 wrapper2.pack(fill="both", expand="yes", padx=10, pady=10)
 
-for i in range(50):
-    Button(my_frame, text="My Button - "+str(i)).pack()
-
 def on_mousewheel(event):
     print("scroll")
     direction = 0
@@ -44,6 +41,16 @@ def on_mousewheel(event):
     if event.num == 4 or event.delta == 120:
      direction = -2
     my_canvas.yview_scroll(direction, UNITS)
+
+for i in range(50):
+     my_button = Button(my_frame, text="My Button - "+str(i))
+     my_button.bind('<Button-4>', on_mousewheel, add='+') # Linux scroll up
+     my_button.bind('<Button-5>', on_mousewheel, add='+')
+     my_button.pack()
+
+
+wrapper1.bind('<Button-4>', on_mousewheel, add='+') # Linux scroll up
+wrapper1.bind('<Button-5>', on_mousewheel, add='+')
 my_canvas.bind('<Button-4>', on_mousewheel, add='+') # Linux scroll up
 my_canvas.bind('<Button-5>', on_mousewheel, add='+')
 

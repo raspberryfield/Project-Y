@@ -197,11 +197,26 @@ class AppPage(tk.Tk):
         self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
+            # bindings
+            entity.label_name.bind('<Button-4>', self.on_mousewheel) # Linux mousewheel scroll up
+            entity.label_name.bind('<Button-5>', self.on_mousewheel) # Linux mousewheel scroll down
+            entity.label_status.bind('<Button-4>', self.on_mousewheel)
+            entity.label_status.bind('<Button-5>', self.on_mousewheel)
+            entity.label_built.bind('<Button-4>', self.on_mousewheel)
+            entity.label_built.bind('<Button-5>', self.on_mousewheel)
+            # widgets
             entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
             entity.label_name.grid(column=1, row=index, sticky="NSEW")
             entity.label_status.grid(column=2, row=index, sticky="NSEW")
             entity.label_built.grid(column=3, row=index, sticky="NSEW")
             entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+    def on_mousewheel(self,event):
+        direction = 0
+        if event.num == 5 or event.delta == -120:
+            direction = 2
+        if event.num == 4 or event.delta == 120:
+            direction = -2
+        self.canvas_entities.yview_scroll(direction, tk.UNITS)
 
     # Info box
     def create_info_section(self):
