@@ -85,6 +85,8 @@ class AppPage(tk.Tk):
         # selection
         self.entities = []
         self.create_selection_section()
+        self.canvas_entities.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
+        self.canvas_entities.bind('<Button-5>', lambda event: print("scrolling"), add='+')
         # info
         self.create_info_section()
         # action / buttons
@@ -172,6 +174,8 @@ class AppPage(tk.Tk):
         self.canvas_entities['yscrollcommand'] = self.scrollbar_entities.set
         # Bind
         self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
+        self.canvas_entities.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
+        self.canvas_entities.bind('<Button-5>', self.on_mousewheel, add='+')
         # Create a frame to contain the entities
         self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
         #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
@@ -197,11 +201,22 @@ class AppPage(tk.Tk):
         self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
+            entity.label_name.bind('<Button-4>', self.on_mousewheel, add='+') # Linux scroll up
+            entity.label_name.bind('<Button-5>', self.on_mousewheel, add='+')
+
             entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
             entity.label_name.grid(column=1, row=index, sticky="NSEW")
             entity.label_status.grid(column=2, row=index, sticky="NSEW")
             entity.label_built.grid(column=3, row=index, sticky="NSEW")
             entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+    def on_mousewheel(self,event):
+        print("scroll")
+        direction = 0
+        if event.num == 5 or event.delta == -120:
+            direction = 2
+        if event.num == 4 or event.delta == 120:
+            direction = -2
+        self.canvas_entities.yview_scroll(direction, tk.UNITS)
 
     # Info box
     def create_info_section(self):
@@ -376,6 +391,8 @@ class AppPage(tk.Tk):
             self.checkbox.pack()
             # labels
             self.label_name = ttk.Label(self.widget, text=self.entity["name"], style="Entity.TLabel")
+            
+
             self.label_status = ttk.Label(self.widget, text="UNKNOWN", style="Entity.TLabel")
             self.label_built = ttk.Label(self.widget, text="?", style="Entity.TLabel")
             # button
