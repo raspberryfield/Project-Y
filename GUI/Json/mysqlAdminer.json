@@ -3,6 +3,7 @@
     "name": "MYSQL/ADMINER",
     "description": "MySQL is used as a database for a fictive source system. Adminer is a extreme lightweighted web browser IDE for MySQL and some other databases.",
     "imageName": ["y-mysql", "y-adminer"],
+    "buildNeeded": true,
     "runCmd": "docker-compose -f ../Docker/y-compose-mysql-adminer.yaml up -d",
     "stopCmd": "docker-compose -f ../Docker/y-compose-mysql-adminer.yaml down",
     "buildCmd": "docker-compose -f ../Docker/y-compose-mysql-adminer.yaml build",

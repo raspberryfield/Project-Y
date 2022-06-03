@@ -141,7 +141,7 @@ class AppPage(tk.Tk):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
         self.header_top_padding = 3
-        self.checkbox_left_padding = 5 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.checkbox_left_padding = 6 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
         position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
         self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
@@ -204,6 +204,8 @@ class AppPage(tk.Tk):
             entity.label_status.bind('<Button-5>', self.on_mousewheel)
             entity.label_built.bind('<Button-4>', self.on_mousewheel)
             entity.label_built.bind('<Button-5>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-4>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-5>', self.on_mousewheel)
             # widgets
             entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
             entity.label_name.grid(column=1, row=index, sticky="NSEW")
@@ -331,7 +333,9 @@ class AppPage(tk.Tk):
         # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
+        self.draw_aligned_header_section() # Align header so it aligns with the cells when they change position after new values are drawn.
         self.cursor_watch(False)
+        
     # status - build check
     def status_build_check(self, entity):
         process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
@@ -344,8 +348,12 @@ class AppPage(tk.Tk):
                 continue
             else:
                 self.display_text(" * " + name + " - NOT OK")
-                built = False
-        if built:
+                built = False  
+        if entity.entity['buildNeeded'] == False:
+            self.display_text(" NOTE! Build not needed for this image/compose file.")
+            entity.label_built.config(text = "N/A")
+            return True
+        elif built:
             entity.label_built.config(text = "YES")
             return True
         else:

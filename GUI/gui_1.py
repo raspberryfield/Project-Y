@@ -348,8 +348,12 @@ class AppPage(tk.Tk):
                 continue
             else:
                 self.display_text(" * " + name + " - NOT OK")
-                built = False
-        if built:
+                built = False  
+        if entity.entity['buildNeeded'] == False:
+            self.display_text(" NOTE! Build not needed for this image/compose file.")
+            entity.label_built.config(text = "N/A")
+            return True
+        elif built:
             entity.label_built.config(text = "YES")
             return True
         else:
