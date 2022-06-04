@@ -29,10 +29,10 @@ Webinterface: `localhost:8000`
 
 ## Modifications to the Official Airbyte Docker Compose Quick Start File  
 
-At the end of the file, the z-net network configuration is added:  
+At the end of the file, the y-net network configuration is added:  
 ```
 networks:
   default:
     external:
-      name: z-net
+      name: y-net
 ```  
