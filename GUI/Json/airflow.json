@@ -1,0 +1,14 @@
+{
+    "id": 5,
+    "name": "AIRFLOW",
+    "description": "Airflow is used for scheduling and orchestration of tasks to load data.",
+    "imageName": ["y-airflow_airflow-worker_1", "y-airflow_airflow-scheduler_1", "y-airflow_airflow-webserver_1", "y-airflow_airflow-triggerer_1", "y-airflow_flower_1", "y-airflow_postgres_1", "y-airflow_redis_1"],
+    "buildNeeded": false,
+    "runCmd": "docker-compose -f ../Docker/Y-Images/Y-Airflow/docker-compose-airflow.yaml up -d",
+    "stopCmd": "docker-compose -f ../Docker/Y-Images/Y-Airflow/docker-compose-airflow.yaml down",
+    "buildCmd": "echo 'Airflow is build/initialized by the pre build script.'",
+    "access": [{"localhost:8080":"Webpage for Airflow."},
+        {"airflow.local":"Webpage for Airflow."},
+        {"localhost:5555": "Web interface for monitoring and administration of the Celery cluster which Airflow runs on."}],
+    "additionalInformation": ["Airflow must be build/initialized by running the pre build script.", "Services: airflow-webserver"]
+}

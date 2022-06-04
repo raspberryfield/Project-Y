@@ -26,7 +26,9 @@ GREY = "#6b6a6a"
 DARK_GREY = "#545454"
 VERY_DARK_GREY = "#363535"
 
-CANVAS_HEIGHT = 90
+CANVAS_HEIGHT = 120 # 90-three entities; 120-four entities;
+INFO_SECTION_HEIGHT = 12 # 8-original
+INFO_SECTION_WIDTH = 90 # 90-good number
 
 
 class AppPage(tk.Tk):
@@ -141,7 +143,7 @@ class AppPage(tk.Tk):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
         self.header_top_padding = 3
-        self.checkbox_left_padding = 5 # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.checkbox_left_padding = 0.08 * INFO_SECTION_WIDTH # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
         position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
         self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
@@ -197,11 +199,28 @@ class AppPage(tk.Tk):
         self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw", width=window_width-20) # -20, give room for scrollbar.
         # self.entities - grid/display
         for index, entity in enumerate(self.entities):
+            # bindings
+            entity.label_name.bind('<Button-4>', self.on_mousewheel) # Linux mousewheel scroll up
+            entity.label_name.bind('<Button-5>', self.on_mousewheel) # Linux mousewheel scroll down
+            entity.label_status.bind('<Button-4>', self.on_mousewheel)
+            entity.label_status.bind('<Button-5>', self.on_mousewheel)
+            entity.label_built.bind('<Button-4>', self.on_mousewheel)
+            entity.label_built.bind('<Button-5>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-4>', self.on_mousewheel)
+            entity.frame_button.bind('<Button-5>', self.on_mousewheel)
+            # widgets
             entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
             entity.label_name.grid(column=1, row=index, sticky="NSEW")
             entity.label_status.grid(column=2, row=index, sticky="NSEW")
             entity.label_built.grid(column=3, row=index, sticky="NSEW")
             entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+    def on_mousewheel(self,event):
+        direction = 0
+        if event.num == 5 or event.delta == -120:
+            direction = 2
+        if event.num == 4 or event.delta == 120:
+            direction = -2
+        self.canvas_entities.yview_scroll(direction, tk.UNITS)
 
     # Info box
     def create_info_section(self):
@@ -209,7 +228,7 @@ class AppPage(tk.Tk):
         self.frame_info_section = ttk.Frame(self, style="Info.TFrame")
         #self.frame_info_section.grid(column=0, row=self.row_start_info_section, columnspan=5)
         # Text
-        self.text_info_section = tk.Text(self.frame_info_section, height=8, state="disable", background=BLACK, foreground=WHITE,
+        self.text_info_section = tk.Text(self.frame_info_section, height=INFO_SECTION_HEIGHT, width=INFO_SECTION_WIDTH, state="disable", background=BLACK, foreground=WHITE,
                                         highlightthickness=1, highlightbackground=VERY_DARK_GREY)
         self.text_info_section.pack(side='left')
         # Scrollbar
@@ -316,7 +335,9 @@ class AppPage(tk.Tk):
         # if nothing checked
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
+        self.draw_aligned_header_section() # Align header so it aligns with the cells when they change position after new values are drawn.
         self.cursor_watch(False)
+        
     # status - build check
     def status_build_check(self, entity):
         process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
@@ -329,8 +350,12 @@ class AppPage(tk.Tk):
                 continue
             else:
                 self.display_text(" * " + name + " - NOT OK")
-                built = False
-        if built:
+                built = False  
+        if entity.entity['buildNeeded'] == False:
+            self.display_text(" NOTE! Build not needed for this image/compose file.")
+            entity.label_built.config(text = "N/A")
+            return True
+        elif built:
             entity.label_built.config(text = "YES")
             return True
         else:

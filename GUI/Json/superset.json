@@ -3,6 +3,7 @@
     "name": "SUPERSET",
     "description": "Apache Superset is a datavisualization and explore tool..",
     "imageName": ["y-superset"],
+    "buildNeeded": true,
     "runCmd": "docker run -p 8004:8088 --network=y-net --mount source=project-y-superset,target=/app --name y-superset --rm -d y-superset",
     "stopCmd": "docker stop y-superset",
     "buildCmd": "docker build -t y-superset ../Docker/Y-Images/Y-Superset/",
