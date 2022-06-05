@@ -1,3 +1,4 @@
+
 # Add these lines to your local hosts file **/etc/hosts**
 # Note! 127.0.0.11 is reserved for internal Docker DNS.
 # The following lines are for project-Z
@@ -6,3 +7,5 @@
 127.0.0.4       superset superset.local
 127.0.0.5       adminer adminer.local
 127.0.0.6       airflow airflow.local
+127.0.0.7       airbyte airbyte.local
+# End

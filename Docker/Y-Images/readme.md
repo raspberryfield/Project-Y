@@ -1,7 +1,6 @@
-# Info about Z-Images  
-In this folder are all the custom images for Z-Project BI-platform.
+# Info about Y-Images  
+In this folder are all the custom images for Project-Y BI-platform. Build the images with the Project-Y GUI.  
 
-You must build each image individually, locally.
 Instructions along with useful information is provided in each folder in respectively *readme.md* file.  
 
 
