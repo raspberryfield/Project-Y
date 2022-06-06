@@ -1,0 +1,13 @@
+{
+    "id": 5,
+    "name": "AIRBYTE",
+    "description": "Airbyte is used to transfer data from one databse to another.",
+    "imageName": ["airbyte-server", "airbyte-db", "airbyte-worker", "airbyte-webapp", "airbyte-scheduler", "airbyte-temporal"],
+    "buildNeeded": false,
+    "runCmd": "docker-compose -f ../Docker/Y-Images/Y-Airbyte/docker-compose-airbyte.yaml --env-file ../Docker/Y-Images/Y-Airbyte/env.airbyte up -d",
+    "stopCmd": "docker-compose -f ../Docker/Y-Images/Y-Airbyte/docker-compose-airbyte.yaml --env-file ../Docker/Y-Images/Y-Airbyte/env.airbyte down",
+    "buildCmd": "echo 'Airbyte is build/initialized the first time you run it (will take some time to pull and build all resources).'",
+    "access": [{"localhost:8000":"Webapp for Airbyte."},
+        {"airbyte.local":"Webapp for Airbyte."}],
+    "additionalInformation": ["Note that Airbyte has several other services than just the webapp, see the compose file."]
+}
