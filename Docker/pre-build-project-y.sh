@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # all images depends on the network 'y-net'
 docker network create -d bridge y-net
 

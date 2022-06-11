@@ -18,6 +18,9 @@ Exit interactive mode:
 Start container in interactively mode connected to a network (e.g. network y-net specified in docker compose file gives *docker_y-net* use `$ docker network ls`.):  
     `$ docker run -it --network=y-net --entrypoint /bin/bash y-ubuntu`  
 
+Interact with a running conatiner (if *bash* don't work, try simaple *sh*):  
+    `$ docker exec -it <container id|name> bash  `
+
 ## Utility Apps
 Browse the *Dockerfile* to see which applications that are added to the y-ubuntu image.
 
