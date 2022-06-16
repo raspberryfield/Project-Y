@@ -1,0 +1,13 @@
+{
+    "id": 7,
+    "name": "MINIO",
+    "description": "MinIO is an oject store, compatible with AWS s3.",
+    "imageName": ["y-minio"],
+    "buildNeeded": true,
+    "runCmd": "docker run -p 9000:9000 -p 9001:9001 --network=y-net --mount source=project-y-minio,target=/data --name y-minio --rm y-minio server /data --console-address ':9001'", flag -d
+    "stopCmd": "todo: docker stop y-superset",
+    "buildCmd": "docker build -t y-minio ../Docker/Y-Images/Y-MinIO/",
+    "access": [{"localhost:8004": "Superset start page."},
+        {"superset.local" : "Superset start page."}],
+    "additionalInformation": ["none"]
+}
