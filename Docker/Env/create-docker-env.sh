@@ -29,7 +29,7 @@ elif [[ $1 == "--help" ]] || [[ $1 == "-h" ]]
   echo "Usage: $0 -u <my@example.com> -p <my_password> [-o]"
   echo "Description: Creates docker environment files locally with user and password from this script."
   echo "-u, --user: Specify username (a valid email address)."
-  echo "-p, --password: Your secret password."
+  echo "-p, --password: Your secret password (Must be minimum 8 characters)."
   echo "-o, --overwrite: overwrites any already existing files. [optional]"
   exit 1
 fi #END help section.
@@ -50,6 +50,7 @@ for arg in $@
  shift 1 # shift index argument $2 >> $3. read +1 from arguments list compared with args.
 done
 
+# VALIDATE
 # Check that user and password are assigned values. (-z check empty)
 if [ -z $user ] || [ -z $password ]
  then
@@ -57,10 +58,23 @@ if [ -z $user ] || [ -z $password ]
   echo "Help: $0 --help"
   exit 1
 fi
+# check that user is valid email.
+if ! [[ $user =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$ ]]
+ then
+  echo "[ERROR] user name is not a valid email address."
+  echo "Help: $0 --help"
+  exit 1
+fi
+# Check that password is minimum 8 characters.
+if [ ${#password} -lt 8 ]
+ then
+  echo "[ERROR] password too few characters, minimum 8."
+  echo "Help: $0 --help"
+  exit 1
+fi
 
 
 #CREATE ENVIRONMENT FILES
-
 file_suffix="-variables.env"
 
 ## If new env file, add function here, also add function name to env_files array.
@@ -89,8 +103,14 @@ function mysql {
  echo "MYSQL_ROOT_PASSWORD=$password" >> ${FUNCNAME[0]}$file_suffix
  echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
 }
+function minio {
+ echo -n "" > ${FUNCNAME[0]}$file_suffix
+ echo "MINIO_ROOT_USER=$user" >> ${FUNCNAME[0]}$file_suffix
+ echo "MINIO_ROOT_PASSWORD=$password" >> ${FUNCNAME[0]}$file_suffix
+ echo "[INFO] - file: '${FUNCNAME[0]}$file_suffix' created."
+}
 ## add new env file to this array.
-env_files=(postgres pgadmin mysql)
+env_files=(postgres pgadmin mysql minio)
 
 ## loop files to create
 for file in ${env_files[@]}
@@ -104,7 +124,7 @@ for file in ${env_files[@]}
   fi
   if [ $overwrite = "true" ]
    then
-    eval $file
+    eval $file # eval: execute
     continue
    else
     if [ -f $filename ] # check if file already exists

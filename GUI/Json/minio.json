@@ -11,3 +11,8 @@
         {"superset.local" : "Superset start page."}],
     "additionalInformation": ["none"]
 }
+
+docker run -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=" -e "MINIO_ROOT_PASSWORD=" --network=y-net --mount source=project-y-minio,target=/data --name y-minio --rm y-minio server /data --console-address ':9001'
+
+
+  
