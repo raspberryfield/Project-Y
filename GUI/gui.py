@@ -48,6 +48,10 @@ class AppPage(tk.Tk):
         # Style config
         self.style = ttk.Style(self)
         self.style.theme_use('default')
+        # button/cmd pane style
+        self.style.configure("Filter.TFrame", background=BLACK)
+        self.style.configure("Filter.TButton", foreground=WHITE, background=VERY_DARK_GREEN)
+        self.style.map('Filter.TButton', background=[('active', DARK_GREEN)], indicatorcolor=[('selected', DARK_GREEN)])
         # header styles
         self.style.configure("Header.TFrame", background=VERY_DARK_GREEN)
         self.style.configure("Header.TCheckbutton", background=VERY_DARK_GREEN, indicatorcolor=WHITE)
@@ -77,11 +81,14 @@ class AppPage(tk.Tk):
 
         # Structure
         # render order
-        self.row_start_header = 0
-        self.row_start_selection = 1
-        self.row_start_info_section = 2
-        self.row_start_action_section = 3
+        self.row_start_filter_section = 0
+        self.row_start_header = 1
+        self.row_start_selection = 2
+        self.row_start_info_section = 3
+        self.row_start_action_section = 4
         # Sections
+        # filter section
+        self.create_filter_section()
         # header
         self.create_header_section()
         # selection
@@ -119,7 +126,12 @@ class AppPage(tk.Tk):
         '''
         Everything must be drawn before the action section, because the commands here uses all objects in the application.
         '''
-        self.frame_button_section.grid(column=0, row=self.row_start_info_section+1, columnspan=5, sticky="ew")
+        self.frame_button_section.grid(column=0, row=self.row_start_action_section, columnspan=5, sticky="ew")
+        # Filter section
+        '''
+        Filter section is similar to the button section and can be drawn last.
+        '''
+        self.frame_filter_section.grid(column=0, row=self.row_start_filter_section, columnspan=5, sticky="ew")
         # END Draw
 
     def create_header_section(self):
@@ -142,7 +154,7 @@ class AppPage(tk.Tk):
     def draw_aligned_header_section(self):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
-        self.header_top_padding = 3
+        self.header_top_padding = 38 # with no filter section it was 3.
         self.checkbox_left_padding = 0.08 * INFO_SECTION_WIDTH # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
         position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
@@ -336,8 +348,7 @@ class AppPage(tk.Tk):
         if checked_entities == 0:
             self.display_text("Check the checkboxes for the entities you want to display the status for.")
         self.draw_aligned_header_section() # Align header so it aligns with the cells when they change position after new values are drawn.
-        self.cursor_watch(False)
-        
+        self.cursor_watch(False)   
     # status - build check
     def status_build_check(self, entity):
         process = (subprocess.Popen('docker image ls', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
@@ -387,6 +398,21 @@ class AppPage(tk.Tk):
             entity.checkbox_var.set("0")
         # clear info box
         self.clear_text()
+
+    # Filter Section
+    def create_filter_section(self):
+        # Frame
+        self.frame_filter_section = ttk.Frame(self, style="Filter.TFrame")
+        # Buttons
+        # filter
+        self.button_filter = ttk.Button(self.frame_filter_section, style="Filter.TButton", text="FILTER", command=self.filter_cmd)
+        self.button_filter.pack(side='right', padx=(0,18), pady=4)
+    # filter
+    def filter_cmd(self):
+        self.cursor_watch(True)
+        print("filter button pressed.")
+        self.canvas_entities.delete("all")
+        self.cursor_watch(False)
 
     class Entity():
         def __init__(self, docker_object, widget_context):
