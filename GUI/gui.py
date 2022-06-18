@@ -48,10 +48,13 @@ class AppPage(tk.Tk):
         # Style config
         self.style = ttk.Style(self)
         self.style.theme_use('default')
-        # button/cmd pane style
+        # filter section style
         self.style.configure("Filter.TFrame", background=BLACK)
         self.style.configure("Filter.TButton", foreground=WHITE, background=VERY_DARK_GREEN)
         self.style.map('Filter.TButton', background=[('active', DARK_GREEN)], indicatorcolor=[('selected', DARK_GREEN)])
+        self.style.configure("Filter.TMenubutton", foreground=WHITE, background=VERY_DARK_GREY, indicatorcolor=WHITE)
+        self.style.map('Filter.TMenubutton', background=[('active', DARK_GREY)],
+            indicatorcolor=[('selected', DARK_GREEN)]) #Note, the style of the pop up menu is in the filter section.
         # header styles
         self.style.configure("Header.TFrame", background=VERY_DARK_GREEN)
         self.style.configure("Header.TCheckbutton", background=VERY_DARK_GREEN, indicatorcolor=WHITE)
@@ -234,6 +237,18 @@ class AppPage(tk.Tk):
             direction = -2
         self.canvas_entities.yview_scroll(direction, tk.UNITS)
 
+    def draw_entities_test(self):
+        for index, entity in enumerate(self.entities):
+            print("drawing")
+            # widgets
+            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
+            entity.label_name.grid(column=1, row=index, sticky="NSEW")
+            entity.label_status.grid(column=2, row=index, sticky="NSEW")
+            entity.label_built.grid(column=3, row=index, sticky="NSEW")
+            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
+            self.update()
+    
+
     # Info box
     def create_info_section(self):
         # Frame
@@ -407,12 +422,38 @@ class AppPage(tk.Tk):
         # filter
         self.button_filter = ttk.Button(self.frame_filter_section, style="Filter.TButton", text="FILTER", command=self.filter_cmd)
         self.button_filter.pack(side='right', padx=(0,18), pady=4)
+        # DROPDOWN MENU
+        ## options
+        self.filter_tags = ('ALL', 'DATA WAREHOUSE', 'DATA LAKEHOUSE')
+        ## variable to hold the option
+        self.filter_tags_var = tk.StringVar(self)
+        self.filter_tags_menu = ttk.OptionMenu(self.frame_filter_section, self.filter_tags_var, self.filter_tags[0], 
+            *self.filter_tags, direction='below', style="Filter.TMenubutton")
+        self.filter_tags_menu["menu"].configure(fg="white", bg="black", activeforeground="white", activebackground=VERY_DARK_GREY)
+        self.filter_tags_menu.pack(side='right', padx=(0,4), pady=4)
+
+
     # filter
     def filter_cmd(self):
         self.cursor_watch(True)
         print("filter button pressed.")
-        self.canvas_entities.delete("all")
+        for entity in self.entities:
+            print (entity.entity['name'])
+            if entity.entity['name'] == 'AIRBYTE':
+                print("removing")
+                # widgets
+                entity.frame_checkbox.grid_remove()
+                entity.label_name.grid_remove()
+                entity.label_status.grid_remove()
+                entity.label_built.grid_remove()
+                entity.frame_button.grid_remove()
+            self.update()
+        #self.canvas_entities.delete("all")
+        #self.draw_entities_test()
         self.cursor_watch(False)
+
+
+
 
     class Entity():
         def __init__(self, docker_object, widget_context):

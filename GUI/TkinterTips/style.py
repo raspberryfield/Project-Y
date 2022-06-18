@@ -33,13 +33,17 @@ def stylename_elements_options(stylename):
               'widget_elements_options({0}) is not a regonised stylename.'
               .format(stylename))
 
+# https://www.pythontutorial.net/tkinter/ttk-style/
 #stylename_elements_options('my.Vertical.TScrollbar')
 stylename_elements_options('TCheckbutton')
 stylename_elements_options('TFrame')
 stylename_elements_options('TButton')
 stylename_elements_options('Vertical.TScrollbar')
+stylename_elements_options('TMenubutton') # this covers optionmenu also https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/ttk-Menubutton.html.
 print("----- ----- -----")
 # stylename_elements_options('TCanvas') see: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/canvas.html
+# for styling optionmenu, see: https://stackoverflow.com/questions/40793670/how-to-edit-ttk-style-for-ttk-optionmenu
+# The style name for an OptionMenu is not TOptionMenu. For any widget the style name can get obtained using widget.winfo_class().
 
 '''
     A ttk widget is made up of elements. The layout determines how elements assembled the widget.
