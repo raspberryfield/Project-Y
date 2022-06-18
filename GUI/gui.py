@@ -425,6 +425,8 @@ class AppPage(tk.Tk):
     # filter
     def filter_cmd(self):
         self.cursor_watch(True)
+        # move canvas/scrollbar to upper most position (0.0), (1.0 means bottom most position.)
+        self.canvas_entities.yview_moveto(0.0)
         # clear grid on canvas in selection/entities section.
         for entity in self.entities: #grid_remove removes widget from grid but do not forget it! It can be redrawn!
             entity.frame_checkbox.grid_remove()
