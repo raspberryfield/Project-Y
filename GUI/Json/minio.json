@@ -4,15 +4,11 @@
     "description": "MinIO is an oject store, compatible with AWS s3.",
     "imageName": ["y-minio"],
     "buildNeeded": true,
-    "runCmd": "docker run -p 9000:9000 -p 9001:9001 --network=y-net --mount source=project-y-minio,target=/data --name y-minio --rm y-minio server /data --console-address ':9001'", flag -d
-    "stopCmd": "todo: docker stop y-superset",
+    "runCmd": "docker run -p 9000:9000 -p 9001:9001 --env-file ../Docker/Env/minio-variables.env --network=y-net --mount source=project-y-minio,target=/data --name y-minio --rm -d y-minio server /data --console-address ':9001'",
+    "stopCmd": "docker stop y-minio",
     "buildCmd": "docker build -t y-minio ../Docker/Y-Images/Y-MinIO/",
-    "access": [{"localhost:8004": "Superset start page."},
-        {"superset.local" : "Superset start page."}],
+    "access": [{"localhost:9000": "API."},
+        {"localhost:9001": "Webapp (console) for MinIO."},
+        {"minio.local" : "Web console for MinIO."}],
     "additionalInformation": ["none"]
-}
-
-docker run -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=" -e "MINIO_ROOT_PASSWORD=" --network=y-net --mount source=project-y-minio,target=/data --name y-minio --rm y-minio server /data --console-address ':9001'
-
-
-  
+}  
