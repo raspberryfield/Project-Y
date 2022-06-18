@@ -158,7 +158,7 @@ class AppPage(tk.Tk):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
         self.header_top_padding = 38 # with no filter section it was 3.
-        self.checkbox_left_padding = 0.09 * INFO_SECTION_WIDTH # Something is causing that grid_bbox don't give accurate value related to root window for first cell? This is a workaround.
+        self.checkbox_left_padding = 8 # same padding as the entity checkbox padding.
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
         position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple of 4 -> (x, y, width, height)
         self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
@@ -170,6 +170,8 @@ class AppPage(tk.Tk):
         self.label_header_built.place(x=position_label_built[0], y=self.header_top_padding )
     # header checkbox function
     def toogle_checkboxes(self):
+        # The user can change filter value but don't aply it. We need a way to force the filter.
+        self.filter_cmd()
         if self.checkbox_header_var.get() == "1":
             for entity in self.entities:
                 if entity.filtered_on == self.filter_options_var.get():
