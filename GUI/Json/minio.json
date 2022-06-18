@@ -10,5 +10,6 @@
     "access": [{"localhost:9000": "API."},
         {"localhost:9001": "Webapp (console) for MinIO."},
         {"minio.local" : "Web console for MinIO."}],
-    "additionalInformation": ["none"]
+    "additionalInformation": ["none"],
+    "tags": ["ALL", "DATA LAKEHOUSE"]
 }  

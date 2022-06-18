@@ -10,5 +10,6 @@
     "access": [{"localhost:8005":"Webpage for Adminer."},
         {"adminer.local":"Webpage for Adminer."},
         {"localhost:3306": "endpoint MySQL"}],
-    "additionalInformation": ["None"]
+    "additionalInformation": ["None"],
+    "tags": ["ALL", "DATA WAREHOUSE"]
 }

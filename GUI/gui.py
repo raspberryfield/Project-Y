@@ -158,9 +158,9 @@ class AppPage(tk.Tk):
         # grid_bbox(): https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/grid-methods.html
         self.update() # Force update so we can get the cells real values.
         self.header_top_padding = 38 # with no filter section it was 3.
-        self.checkbox_left_padding = 0.08 * INFO_SECTION_WIDTH # Something is causing that grid_bbox don't give accurate value related to root window for first cell?
+        self.checkbox_left_padding = 0.09 * INFO_SECTION_WIDTH # Something is causing that grid_bbox don't give accurate value related to root window for first cell? This is a workaround.
         self.last_row = len(self.entities)-1 # last entry in the list would have been pushed in representativ position for all.
-        position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple -> (x, y, width, height)
+        position_checkbox = self.frame_canvas.grid_bbox(0, self.last_row) # returns tuple of 4 -> (x, y, width, height)
         self.frame_checkbox_header.place(x=position_checkbox[0]+self.checkbox_left_padding, y=self.header_top_padding ) # (x, y)
         position_label_name = self.frame_canvas.grid_bbox(1, self.last_row)
         self.label_header_name.place(x=position_label_name[0], y=self.header_top_padding )
@@ -172,7 +172,8 @@ class AppPage(tk.Tk):
     def toogle_checkboxes(self):
         if self.checkbox_header_var.get() == "1":
             for entity in self.entities:
-                entity.checkbox_var.set("1")
+                if entity.filtered_on == self.filter_options_var.get():
+                    entity.checkbox_var.set("1")
         else:
             for entity in self.entities:
                 entity.checkbox_var.set("0")
@@ -236,18 +237,6 @@ class AppPage(tk.Tk):
         if event.num == 4 or event.delta == 120:
             direction = -2
         self.canvas_entities.yview_scroll(direction, tk.UNITS)
-
-    def draw_entities_test(self):
-        for index, entity in enumerate(self.entities):
-            print("drawing")
-            # widgets
-            entity.frame_checkbox.grid(column=0, row=index, sticky="NSEW")
-            entity.label_name.grid(column=1, row=index, sticky="NSEW")
-            entity.label_status.grid(column=2, row=index, sticky="NSEW")
-            entity.label_built.grid(column=3, row=index, sticky="NSEW")
-            entity.frame_button.grid(column=4, row=index, sticky="NSEW")
-            self.update()
-    
 
     # Info box
     def create_info_section(self):
@@ -424,36 +413,39 @@ class AppPage(tk.Tk):
         self.button_filter.pack(side='right', padx=(0,18), pady=4)
         # DROPDOWN MENU
         ## options
-        self.filter_tags = ('ALL', 'DATA WAREHOUSE', 'DATA LAKEHOUSE')
+        self.filter_options = ('ALL', 'DATA WAREHOUSE', 'DATA LAKEHOUSE')
         ## variable to hold the option
-        self.filter_tags_var = tk.StringVar(self)
-        self.filter_tags_menu = ttk.OptionMenu(self.frame_filter_section, self.filter_tags_var, self.filter_tags[0], 
-            *self.filter_tags, direction='below', style="Filter.TMenubutton")
-        self.filter_tags_menu["menu"].configure(fg="white", bg="black", activeforeground="white", activebackground=VERY_DARK_GREY)
-        self.filter_tags_menu.pack(side='right', padx=(0,4), pady=4)
-
-
+        self.filter_options_var = tk.StringVar(self)
+        self.filter_options_menu = ttk.OptionMenu(self.frame_filter_section, self.filter_options_var, self.filter_options [0], 
+            *self.filter_options, direction='below', style="Filter.TMenubutton")
+        self.filter_options_menu["menu"].configure(fg="white", bg="black", activeforeground="white", activebackground=VERY_DARK_GREY)
+        self.filter_options_menu.pack(side='right', padx=(0,4), pady=4)
     # filter
     def filter_cmd(self):
         self.cursor_watch(True)
-        print("filter button pressed.")
+        # clear grid on canvas in selection/entities section.
+        for entity in self.entities: #grid_remove removes widget from grid but do not forget it! It can be redrawn!
+            entity.frame_checkbox.grid_remove()
+            entity.label_name.grid_remove()
+            entity.label_status.grid_remove()
+            entity.label_built.grid_remove()
+            entity.frame_button.grid_remove()
+        # re-grid/re-draw widgets
         for entity in self.entities:
-            print (entity.entity['name'])
-            if entity.entity['name'] == 'AIRBYTE':
-                print("removing")
-                # widgets
-                entity.frame_checkbox.grid_remove()
-                entity.label_name.grid_remove()
-                entity.label_status.grid_remove()
-                entity.label_built.grid_remove()
-                entity.frame_button.grid_remove()
-            self.update()
-        #self.canvas_entities.delete("all")
-        #self.draw_entities_test()
+            is_in_filter = False
+            for tag in entity.entity['tags']:
+                if tag == self.filter_options_var.get():
+                    is_in_filter = True
+                    break
+            if is_in_filter:
+                entity.filtered_on = self.filter_options_var.get()
+                entity.frame_checkbox.grid()
+                entity.label_name.grid()
+                entity.label_status.grid()
+                entity.label_built.grid()
+                entity.frame_button.grid()
+        self.draw_aligned_header_section()
         self.cursor_watch(False)
-
-
-
 
     class Entity():
         def __init__(self, docker_object, widget_context):
@@ -465,7 +457,7 @@ class AppPage(tk.Tk):
             self.frame_checkbox = ttk.Frame(self.widget, style="Entity.TFrame")
             self.checkbox_var = tk.StringVar()
             self.checkbox = ttk.Checkbutton(self.frame_checkbox, variable=self.checkbox_var, style="Entity.TCheckbutton")
-            self.checkbox.pack()
+            self.checkbox.pack(side='left', padx=(8,0))
             # labels
             self.label_name = ttk.Label(self.widget, text=self.entity["name"], style="Entity.TLabel")
             self.label_status = ttk.Label(self.widget, text="UNKNOWN", style="Entity.TLabel")
@@ -476,6 +468,8 @@ class AppPage(tk.Tk):
                                 command=self.show_info_message
                                 )
             self.button.pack(side='right')
+            # filter
+            self.filtered_on = "ALL" # The filtered value on entity, can be used for various logic. E.g. Header checkbox toogle.
         # Methods
         def show_info_message(self):
             title = self.entity['name']

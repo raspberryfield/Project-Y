@@ -11,5 +11,6 @@
         {"localhost":"Localhost defaults to localhost:80 in browser. Also Nginx start page."},
         {"nginx.local" : "Nginx start page."},
         {"nginx-static.local" : "Static webpage example hosted by Nginx."}],
-    "additionalInformation": ["None"]
+    "additionalInformation": ["None"],
+    "tags": ["ALL", "DATA WAREHOUSE", "DATA LAKEHOUSE"]
 }

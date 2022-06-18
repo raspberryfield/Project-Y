@@ -8,5 +8,6 @@
     "stopCmd": "echo 'Y-Ubuntu runs in interactive mode in an other terminal window. If it is open, just close it or type: exit, and then close it.'",
     "buildCmd": "docker build -t y-ubuntu ../Docker/Y-Images/Y-Ubuntu/",
     "access": [{"N/A":"Only interactive (-it) mode via docker container."}],
-    "additionalInformation": ["See readme.md under Y-Ubuntu for more information."]
+    "additionalInformation": ["See readme.md under Y-Ubuntu for more information."],
+    "tags": ["ALL", "DATA WAREHOUSE", "DATA LAKEHOUSE"]
 }

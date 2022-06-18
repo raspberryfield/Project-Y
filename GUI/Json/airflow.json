@@ -10,5 +10,6 @@
     "access": [{"localhost:8080":"Webpage for Airflow."},
         {"airflow.local":"Webpage for Airflow."},
         {"localhost:5555": "Web interface for monitoring and administration of the Celery cluster which Airflow runs on."}],
-    "additionalInformation": ["Airflow must be build/initialized by running the pre build script.", "Services: airflow-webserver"]
+    "additionalInformation": ["Airflow must be build/initialized by running the pre build script.", "Services: airflow-webserver"],
+    "tags": ["ALL", "DATA WAREHOUSE"]
 }

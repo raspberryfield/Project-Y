@@ -44,6 +44,7 @@ print("----- ----- -----")
 # stylename_elements_options('TCanvas') see: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/canvas.html
 # for styling optionmenu, see: https://stackoverflow.com/questions/40793670/how-to-edit-ttk-style-for-ttk-optionmenu
 # The style name for an OptionMenu is not TOptionMenu. For any widget the style name can get obtained using widget.winfo_class().
+# To change the background of the drop down menu: my_optionmenu["menu"].configure(bg="black") If you run: print(my_optionmenu["menu"].keys()) you get all of the options you can change for the OptionMenu widge
 
 '''
     A ttk widget is made up of elements. The layout determines how elements assembled the widget.

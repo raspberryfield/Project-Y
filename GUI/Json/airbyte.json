@@ -9,5 +9,6 @@
     "buildCmd": "echo 'Airbyte is build/initialized the first time you run it (will take some time to pull and build all resources).'",
     "access": [{"localhost:8000":"Webapp for Airbyte."},
         {"airbyte.local":"Webapp for Airbyte."}],
-    "additionalInformation": ["Note that Airbyte has several other services than just the webapp, see the compose file."]
+    "additionalInformation": ["Note that Airbyte has several other services than just the webapp, see the compose file."],
+    "tags": ["ALL", "DATA WAREHOUSE"]
 }

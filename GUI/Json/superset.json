@@ -9,5 +9,6 @@
     "buildCmd": "docker build -t y-superset ../Docker/Y-Images/Y-Superset/",
     "access": [{"localhost:8004": "Superset start page."},
         {"superset.local" : "Superset start page."}],
-    "additionalInformation": ["NOTE! It will take around 5min to build this image.", "It will take 30s to stop it.", "u/p admin"]
+    "additionalInformation": ["NOTE! It will take around 5min to build this image.", "It will take 30s to stop it.", "u/p admin"],
+    "tags": ["ALL", "DATA WAREHOUSE"]
 }
