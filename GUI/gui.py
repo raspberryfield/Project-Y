@@ -179,7 +179,7 @@ class AppPage(tk.Tk):
 
     def create_selection_section(self):
         # Frame
-        self.frame_entity_section = ttk.Frame(self, style="Test.TFrame") # TODO: change style here?
+        self.frame_entity_section = ttk.Frame(self)
         # Canvas (only text and canvas widgets are scrollable) https://www.youtube.com/watch?v=VmlgrrXAqb4
         self.canvas_entities = tk.Canvas(self.frame_entity_section, height=CANVAS_HEIGHT, bg=BLACK, highlightbackground=VERY_DARK_GREY)
         self.canvas_entities.pack(side='left', fill=BOTH, expand=True)
@@ -190,7 +190,7 @@ class AppPage(tk.Tk):
         # Bind
         self.canvas_entities.bind('<Configure>', lambda event: self.canvas_entities.configure(scrollregion=self.canvas_entities.bbox("all")))
         # Create a frame to contain the entities
-        self.frame_canvas = ttk.Frame(self.canvas_entities, style="Test2.TFrame")
+        self.frame_canvas = ttk.Frame(self.canvas_entities)
         #self.canvas_entities.create_window((0,0), window=self.frame_canvas, anchor="nw")
         # Configuration of the grid
         self.frame_canvas.columnconfigure(0, weight=1) # CHECKBOX
