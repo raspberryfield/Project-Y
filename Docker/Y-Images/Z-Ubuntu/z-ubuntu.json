@@ -1,0 +1,13 @@
+{
+    "id": 10,
+    "name": "Z-UBUNTU",
+    "description": "Test for SFTP server.",
+    "imageName": ["z-ubuntu"],
+    "buildNeeded": true,
+    "runCmd": "docker run -p 22:22 -it --name z-ubuntu --rm --entrypoint /bin/bash z-ubuntu",
+    "stopCmd": "#exit",
+    "buildCmd": "docker build -t z-ubuntu .",
+    "access": [{"N/A":"Only interactive (-it) mode via docker container."}],
+    "additionalInformation": ["See readme.md under Y-Ubuntu for more information."],
+    "tags": ["ALL", "DATA WAREHOUSE", "DATA LAKEHOUSE"]
+}
