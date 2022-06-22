@@ -43,7 +43,23 @@ Connect:
     `# mysql --host y-mysql --password mysql`  
 (This command will connect to database 'mysql' you will be asked to provide password. Mysql db holds user information etc. Don't put your data here.)  
 
+### SFTP  
+A sftp service is installed in the image. It is used in some tutorials.
+user: sftp_user  
+psw: sftp
 
+To start it, run:  
+    `# service ssh status`  
+To connect from the host, run this in terminal:  
+    `$ sftp sftp_user@localhost`  
 
+You can also connect via the file manager (nautilus) to get a graphical interface;  
+    1. Open File Manager (called nautilus on GNOME based Linux distros).  
+    2. Click on `+ Other Location`.  
+    3. In the entry field type: `sftp://loclahost`.  
+    4. Connect and entry user credentials.  
 
-
+List all groups on the system:  
+`# cat /etc/group`  
+List all groups of a user:  
+`# groups <user_name>`  

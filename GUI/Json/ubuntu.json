@@ -4,7 +4,7 @@
     "description": "An image based on ubuntu. Several CLI tools like ping, nslookup, psql etc. can be found here.",
     "imageName": ["y-ubuntu"],
     "buildNeeded": true,
-    "runCmd": "gnome-terminal -- bash -c 'docker run -it --network=y-net --name y-ubuntu --rm --entrypoint /bin/bash y-ubuntu; exec bash'",
+    "runCmd": "gnome-terminal -- bash -c 'docker run -p 22:22 -it --network=y-net --name y-ubuntu --rm --entrypoint /bin/bash y-ubuntu; exec bash'",
     "stopCmd": "echo 'Y-Ubuntu runs in interactive mode in an other terminal window. If it is open, just close it or type: exit, and then close it.'",
     "buildCmd": "docker build -t y-ubuntu ../Docker/Y-Images/Y-Ubuntu/",
     "access": [{"N/A":"Only interactive (-it) mode via docker container."}],
