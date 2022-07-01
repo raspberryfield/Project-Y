@@ -59,7 +59,18 @@ You can also connect via the file manager (nautilus) to get a graphical interfac
     3. In the entry field type: `sftp://loclahost`.  
     4. Connect and entry user credentials.  
 
+#### To see the user or group:  
 List all groups on the system:  
 `# cat /etc/group`  
 List all groups of a user:  
 `# groups <user_name>`  
+
+### mc (MinIO CLI)  
+The **mc** application is located in `/home/root`.  
+Help:  
+    `# ./mc --help`  
+Connect:
+    `./mc alias set <ALIAS> <YOUR-S3-ENDPOINT> [YOUR-ACCESS-KEY] [YOUR-SECRET-KEY] [--api API-SIGNATURE]`  
+    e.g.:  
+    `# ./mc alias set y-minio http://y-minio:9000 user@example.com password`  
+

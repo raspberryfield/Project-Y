@@ -24,5 +24,13 @@ RUN echo 'sftp_user:sftp' | chpasswd
 # grant permission
 RUN chmod 700 /home/sftp_user/
 
+
+# Manually downloaded binaries
+WORKDIR /home/root
+##MinIO (mc)
+RUN wget https://dl.minio.io/client/mc/release/linux-amd64/mc
+RUN chmod +x mc
+
+
 ENTRYPOINT ["/bin/bash"]
 

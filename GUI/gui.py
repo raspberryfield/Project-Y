@@ -261,6 +261,7 @@ class AppPage(tk.Tk):
         self.text_info_section.insert(tk.END, message + " \n")
         self.text_info_section['state'] = 'disable'
         self.text_info_section.see("end") # autoscroll
+        self.update()
     def display_raw_text(self, message):
         self.text_info_section['state'] = 'normal'
         self.text_info_section.insert(tk.END, message)
@@ -380,6 +381,7 @@ class AppPage(tk.Tk):
             return False
     # status - running check
     def status_running_check(self, entity):
+        time.sleep(0.5) #Some images (e.g. ubuntu) will open in other process, give some slack so it has time to open before checking status.
         stdout_process_status = str(subprocess.Popen('docker ps', shell=True, stdout=subprocess.PIPE).stdout.read()) # list docker running processes.
         self.display_text("Checking run status for: " + entity.entity['name'])
         running = True # Not guilty until otherwise proven.
