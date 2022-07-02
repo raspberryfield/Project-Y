@@ -8,4 +8,5 @@
 127.0.0.5       adminer adminer.local
 127.0.0.6       airflow airflow.local
 127.0.0.7       airbyte airbyte.local
+127.0.0.8       minio minio.local
 # End
